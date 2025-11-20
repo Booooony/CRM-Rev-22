@@ -1454,20 +1454,64 @@
             // Try Firestore first
             if (hasFirebase) {
                 try {
-                    // Find project by clientId (numeric ID) or doc ID
-                    const byClientId = await firestoreCollections.projects().where('clientId', '==', parseInt(projectId)).limit(1).get();
-                    if (!byClientId.empty) {
-                        const doc = byClientId.docs[0];
-                        const data = doc.data();
-                        project = {
-                            id: data.clientId || parseInt(projectId),
-                            name: data.name || '',
-                            region: data.region || '',
-                            crmReference: data.crmReference || '',
-                            forecast: data.forecast || 'WIV',
-                            followUpDate: data.followUpDate || '',
-                            airtableLink: data.airtableLink || ''
-                        };
+                    // Try multiple query approaches
+                    // 1. Query by clientId (numeric)
+                    const numericId = parseInt(projectId);
+                    if (!isNaN(numericId)) {
+                        const byClientId = await firestoreCollections.projects().where('clientId', '==', numericId).limit(1).get();
+                        if (!byClientId.empty) {
+                            const doc = byClientId.docs[0];
+                            const data = doc.data();
+                            project = {
+                                id: data.clientId || numericId,
+                                name: data.name || '',
+                                region: data.region || '',
+                                crmReference: data.crmReference || '',
+                                forecast: data.forecast || 'WIV',
+                                followUpDate: data.followUpDate || '',
+                                airtableLink: data.airtableLink || ''
+                            };
+                        }
+                    }
+                    
+                    // 2. If not found, try by document ID
+                    if (!project) {
+                        try {
+                            const docRef = firestoreCollections.projects().doc(projectId);
+                            const doc = await docRef.get();
+                            if (doc.exists) {
+                                const data = doc.data();
+                                project = {
+                                    id: data.clientId || parseInt(projectId) || projectId,
+                                    name: data.name || '',
+                                    region: data.region || '',
+                                    crmReference: data.crmReference || '',
+                                    forecast: data.forecast || 'WIV',
+                                    followUpDate: data.followUpDate || '',
+                                    airtableLink: data.airtableLink || ''
+                                };
+                            }
+                        } catch (docError) {
+                            console.warn('Could not load by document ID:', docError);
+                        }
+                    }
+                    
+                    // 3. Try querying by clientId as string (fallback)
+                    if (!project) {
+                        const byClientIdString = await firestoreCollections.projects().where('clientId', '==', projectId).limit(1).get();
+                        if (!byClientIdString.empty) {
+                            const doc = byClientIdString.docs[0];
+                            const data = doc.data();
+                            project = {
+                                id: data.clientId || projectId,
+                                name: data.name || '',
+                                region: data.region || '',
+                                crmReference: data.crmReference || '',
+                                forecast: data.forecast || 'WIV',
+                                followUpDate: data.followUpDate || '',
+                                airtableLink: data.airtableLink || ''
+                            };
+                        }
                     }
                 } catch (e) {
                     console.error('Error loading project from Firestore:', e);
