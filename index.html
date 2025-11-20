@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.gstatic.com https://*.firebaseio.com https://*.googleapis.com; object-src 'none'; base-uri 'self';">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.gstatic.com https://*.firebaseio.com https://*.googleapis.com https://*.firebaseapp.com; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.firebaseapp.com wss://*.firebaseio.com; object-src 'none'; base-uri 'self';">
     <title>CRM Projects Table</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
     <link rel="stylesheet" href="dashboard-styles.css">
@@ -858,7 +858,9 @@
                         <label class="form-label" for="projectName">Project Name *</label>
                         <input 
                             type="text" 
-                            id="projectName" 
+                            id="projectName"
+                            name="projectName"
+                            autocomplete="organization"
                             class="form-input" 
                             placeholder="Enter project name"
                             required
@@ -867,7 +869,7 @@
 
                     <div class="form-group">
                         <label class="form-label" for="region">Region *</label>
-                        <select id="region" class="form-select" required>
+                        <select id="region" name="region" autocomplete="country" class="form-select" required>
                             <option value="">Select region...</option>
                             <option value="Africa">Africa</option>
                             <option value="North America">North America</option>
@@ -881,7 +883,9 @@
                         <label class="form-label" for="crmReference">CRM Reference *</label>
                         <input 
                             type="text" 
-                            id="crmReference" 
+                            id="crmReference"
+                            name="crmReference"
+                            autocomplete="off"
                             class="form-input" 
                             placeholder="e.g., CRM-2025-001"
                             required
@@ -890,7 +894,7 @@
 
                     <div class="form-group">
                         <label class="form-label" for="forecast">Forecast *</label>
-                        <select id="forecast" class="form-select" required>
+                        <select id="forecast" name="forecast" autocomplete="off" class="form-select" required>
                             <option value="">Select forecast...</option>
                             <option value="WON">WON - Won</option>
                             <option value="WIV">WIV - Work in View</option>
@@ -902,7 +906,9 @@
                         <label class="form-label" for="followUpDate">Next Follow-up Date</label>
                         <input 
                             type="date" 
-                            id="followUpDate" 
+                            id="followUpDate"
+                            name="followUpDate"
+                            autocomplete="off"
                             class="form-input"
                         >
                     </div>
@@ -911,7 +917,9 @@
                         <label class="form-label" for="airtableLink">Airtable Link</label>
                         <input 
                             type="url" 
-                            id="airtableLink" 
+                            id="airtableLink"
+                            name="airtableLink"
+                            autocomplete="url"
                             class="form-input" 
                             placeholder="https://airtable.com/..."
                         >
@@ -1017,7 +1025,7 @@
                         <tr>
                             <th class="cell-drag-handle"></th>
                             <th class="cell-checkbox">
-                                <input type="checkbox" id="selectAll" aria-label="Select all rows">
+                                <input type="checkbox" id="selectAll" name="selectAll" aria-label="Select all rows">
                             </th>
                             <th>Project Name</th>
                             <th>Region</th>
@@ -1616,7 +1624,7 @@
                         <tr data-id="${project.id}" data-forecast="${project.forecast}" style="cursor: pointer;" onclick="openProject(${project.id}, event)">
                             <td class="cell-drag-handle" onclick="event.stopPropagation()">⋮⋮</td>
                             <td class="cell-checkbox" onclick="event.stopPropagation()">
-                                <input type="checkbox" aria-label="Select row">
+                                <input type="checkbox" name="projectCheckbox_${project.id}" aria-label="Select row">
                             </td>
                             <td><strong>${escapeHtml(project.name)}</strong></td>
                             <td><span class="region-badge">${escapeHtml(project.region)}</span></td>
