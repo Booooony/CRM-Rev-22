@@ -993,7 +993,9 @@
                     <input 
                         type="text" 
                         class="search-input" 
-                        id="searchInput" 
+                        id="searchInput"
+                        name="searchInput"
+                        autocomplete="off"
                         placeholder="Search projects..."
                         oninput="searchProjects()"
                     >
@@ -1218,34 +1220,76 @@
         
         // Sync costing data from Firestore to localStorage
         async function syncCostingDataFromFirestore() {
-            const hasFirebase = typeof firebase !== 'undefined' && typeof db !== 'undefined';
-            if (!hasFirebase) return;
-            
+            // Check if Firebase is available and working
             try {
+                const hasFirebase = typeof firebase !== 'undefined' && typeof db !== 'undefined' && typeof firestoreCollections !== 'undefined';
+                if (!hasFirebase) {
+                    console.log('Firebase not available, using localStorage only');
+                    return;
+                }
+                
+                // Test Firebase connection with a timeout
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Firebase timeout')), 5000)
+                );
+                
+                const firestorePromise = firestoreCollections.costings().limit(1).get();
+                await Promise.race([firestorePromise, timeoutPromise]);
+                
                 // Load all costings from Firestore
                 const costingsSnapshot = await firestoreCollections.costings().get();
                 let updated = false;
                 
                 costingsSnapshot.forEach(doc => {
-                    const data = doc.data();
-                    const projectId = data.projectId;
-                    const milestoneId = data.milestoneId || 'costing';
-                    
-                    // Only sync costing milestone data
-                    if (milestoneId === 'costing' && projectId) {
-                        const costingKey = `costing_${projectId}_costing`;
-                        const existing = localStorage.getItem(costingKey);
+                    try {
+                        const data = doc.data();
+                        const projectId = data.projectId;
+                        const milestoneId = data.milestoneId || 'costing';
                         
-                        // Update localStorage if Firestore has newer data or localStorage is empty
-                        if (!existing || (data.updatedAt && (!existing || !JSON.parse(existing).updatedAt))) {
-                            localStorage.setItem(costingKey, JSON.stringify({
-                                lineItems: data.lineItems || [],
-                                counter: data.counter || 1,
-                                discount: data.discount || 0,
-                                updatedAt: data.updatedAt
-                            }));
-                            updated = true;
+                        // Only sync costing milestone data
+                        if (milestoneId === 'costing' && projectId) {
+                            const costingKey = `costing_${projectId}_costing`;
+                            const existing = localStorage.getItem(costingKey);
+                            
+                            // Update localStorage if Firestore has newer data or localStorage is empty
+                            if (!existing) {
+                                localStorage.setItem(costingKey, JSON.stringify({
+                                    lineItems: data.lineItems || [],
+                                    counter: data.counter || 1,
+                                    discount: data.discount || 0,
+                                    updatedAt: data.updatedAt
+                                }));
+                                updated = true;
+                            } else {
+                                // Compare timestamps if both exist
+                                try {
+                                    const existingData = JSON.parse(existing);
+                                    const firestoreTime = data.updatedAt?.toMillis ? data.updatedAt.toMillis() : (data.updatedAt?.seconds * 1000);
+                                    const localTime = existingData.updatedAt?.toMillis ? existingData.updatedAt.toMillis() : (existingData.updatedAt?.seconds * 1000);
+                                    
+                                    if (firestoreTime && (!localTime || firestoreTime > localTime)) {
+                                        localStorage.setItem(costingKey, JSON.stringify({
+                                            lineItems: data.lineItems || [],
+                                            counter: data.counter || 1,
+                                            discount: data.discount || 0,
+                                            updatedAt: data.updatedAt
+                                        }));
+                                        updated = true;
+                                    }
+                                } catch (parseError) {
+                                    // If parsing fails, update anyway
+                                    localStorage.setItem(costingKey, JSON.stringify({
+                                        lineItems: data.lineItems || [],
+                                        counter: data.counter || 1,
+                                        discount: data.discount || 0,
+                                        updatedAt: data.updatedAt
+                                    }));
+                                    updated = true;
+                                }
+                            }
                         }
+                    } catch (docError) {
+                        console.warn('Error processing costing document:', docError);
                     }
                 });
                 
@@ -1254,7 +1298,9 @@
                     renderTable();
                 }
             } catch (e) {
-                console.error('Error syncing costing data from Firestore:', e);
+                // Silently fail - CSP or Firebase errors shouldn't break the page
+                console.warn('Could not sync from Firestore (may be CSP restriction):', e.message);
+                // Continue with localStorage only
             }
         }
 
@@ -1599,6 +1645,9 @@
                                 <input 
                                     type="date" 
                                     class="editable-date" 
+                                    name="followUpDate_${project.id}"
+                                    id="followUpDate_${project.id}"
+                                    autocomplete="off"
                                     value="${project.followUpDate}"
                                     onchange="updateFollowUpDate(${project.id}, this.value)"
                                 >
