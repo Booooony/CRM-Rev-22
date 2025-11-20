@@ -16,17 +16,47 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase (Compat SDK already loaded from CDN)
-firebase.initializeApp(firebaseConfig);
-
-// Firestore and Storage references (global)
-window.db = firebase.firestore();
-window.storage = firebase.storage ? firebase.storage() : null;
-
-// Helpers
-window.firestoreCollections = {
-  projects: () => db.collection('projects'),
-  costings: () => db.collection('costings'), // docId: `${projectId}_${milestoneId}`
-};
+try {
+    firebase.initializeApp(firebaseConfig);
+    
+    // Firestore and Storage references (global)
+    window.db = firebase.firestore();
+    window.storage = firebase.storage ? firebase.storage() : null;
+    
+    // Helpers - only create if db is initialized
+    if (window.db) {
+        window.firestoreCollections = {
+            projects: () => {
+                if (!window.db) {
+                    console.error('Firestore db is not initialized');
+                    return null;
+                }
+                return window.db.collection('projects');
+            },
+            costings: () => {
+                if (!window.db) {
+                    console.error('Firestore db is not initialized');
+                    return null;
+                }
+                return window.db.collection('costings'); // docId: `${projectId}_${milestoneId}`
+            }
+        };
+    } else {
+        console.warn('Firebase Firestore initialization failed - db is null');
+        window.firestoreCollections = {
+            projects: () => null,
+            costings: () => null
+        };
+    }
+} catch (error) {
+    console.error('Firebase initialization error:', error);
+    window.db = null;
+    window.storage = null;
+    window.firestoreCollections = {
+        projects: () => null,
+        costings: () => null
+    };
+}
 
 // Utility to convert firestore doc to plain object with id
 window.withId = (doc) => ({ id: doc.id, ...doc.data() });

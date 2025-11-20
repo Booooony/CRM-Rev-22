@@ -1324,16 +1324,21 @@
 
             // Load project data
             let project = null;
-            const hasFirebase = typeof firebase !== 'undefined' && typeof db !== 'undefined';
+            const hasFirebase = typeof firebase !== 'undefined' && typeof db !== 'undefined' && typeof firestoreCollections !== 'undefined' && db !== null;
             
             // Try Firestore first
             if (hasFirebase) {
                 try {
+                    const projectsCollection = firestoreCollections.projects();
+                    if (!projectsCollection) {
+                        throw new Error('Firestore collection not available');
+                    }
+                    
                     // Try multiple query approaches
                     // 1. Query by clientId (numeric)
                     const numericId = parseInt(projectId);
                     if (!isNaN(numericId)) {
-                        const byClientId = await firestoreCollections.projects().where('clientId', '==', numericId).limit(1).get();
+                        const byClientId = await projectsCollection.where('clientId', '==', numericId).limit(1).get();
                         if (!byClientId.empty) {
                             const doc = byClientId.docs[0];
                             const data = doc.data();
@@ -1352,7 +1357,7 @@
                     // 2. If not found, try by document ID
                     if (!project) {
                         try {
-                            const docRef = firestoreCollections.projects().doc(projectId);
+                            const docRef = projectsCollection.doc(projectId);
                             const doc = await docRef.get();
                             if (doc.exists) {
                                 const data = doc.data();
@@ -1373,7 +1378,7 @@
                     
                     // 3. Try querying by clientId as string (fallback)
                     if (!project) {
-                        const byClientIdString = await firestoreCollections.projects().where('clientId', '==', projectId).limit(1).get();
+                        const byClientIdString = await projectsCollection.where('clientId', '==', projectId).limit(1).get();
                         if (!byClientIdString.empty) {
                             const doc = byClientIdString.docs[0];
                             const data = doc.data();
@@ -3085,7 +3090,16 @@
         }
 
         // Initialize when DOM is ready
-        document.addEventListener('DOMContentLoaded', async () => await initializePage());
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Wait a bit for Firebase to initialize
+            let retries = 0;
+            const maxRetries = 10;
+            while (retries < maxRetries && (typeof firebase === 'undefined' || typeof db === 'undefined' || db === null)) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+                retries++;
+            }
+            await initializePage();
+        });
     </script>
 </body>
 </html>
