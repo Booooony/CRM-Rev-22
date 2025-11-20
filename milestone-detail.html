@@ -1037,6 +1037,10 @@
     </style>
 </head>
 <body>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
     <div class="dashboard-container" style="padding: 24px; max-width: 1400px; margin: 0 auto;">
         
         <!-- Page Header -->
@@ -1311,7 +1315,7 @@
         };
 
         // Initialize page
-        function initializePage() {
+        async function initializePage() {
             if (!projectId || !milestoneId) {
                 alert('Invalid parameters');
                 window.location.href = 'index.html';
@@ -1319,18 +1323,47 @@
             }
 
             // Load project data
-            const projectsData = localStorage.getItem('crmProjects');
-            if (!projectsData) {
-                alert('No project data found');
-                window.location.href = 'index.html';
-                return;
+            let project = null;
+            const hasFirebase = typeof firebase !== 'undefined' && typeof db !== 'undefined';
+            
+            // Try Firestore first
+            if (hasFirebase) {
+                try {
+                    // Find project by clientId (numeric ID) or doc ID
+                    const byClientId = await firestoreCollections.projects().where('clientId', '==', parseInt(projectId)).limit(1).get();
+                    if (!byClientId.empty) {
+                        const doc = byClientId.docs[0];
+                        const data = doc.data();
+                        project = {
+                            id: data.clientId || parseInt(projectId),
+                            name: data.name || '',
+                            region: data.region || '',
+                            crmReference: data.crmReference || '',
+                            forecast: data.forecast || 'WIV',
+                            followUpDate: data.followUpDate || '',
+                            airtableLink: data.airtableLink || ''
+                        };
+                    }
+                } catch (e) {
+                    console.error('Error loading project from Firestore:', e);
+                }
             }
-
-            const projects = JSON.parse(projectsData);
-            const project = projects.find(p => p.id == projectId);
-
+            
+            // Fallback to localStorage
             if (!project) {
-                alert('Project not found');
+                const projectsData = localStorage.getItem('crmProjects');
+                if (projectsData) {
+                    try {
+                        const projects = JSON.parse(projectsData);
+                        project = projects.find(p => p.id == projectId);
+                    } catch (e) {
+                        console.error('Error parsing projects from localStorage:', e);
+                    }
+                }
+            }
+            
+            if (!project) {
+                alert('No project data found');
                 window.location.href = 'index.html';
                 return;
             }
@@ -3008,7 +3041,7 @@
         }
 
         // Initialize when DOM is ready
-        document.addEventListener('DOMContentLoaded', initializePage);
+        document.addEventListener('DOMContentLoaded', async () => await initializePage());
     </script>
 </body>
 </html>
