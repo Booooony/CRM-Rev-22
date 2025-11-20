@@ -1207,15 +1207,56 @@
             } else {
                 // No Firebase - use localStorage only
                 loadProjectsFromLocalStorage();
-                // Only load sample data if localStorage is completely empty (first time use)
-                if (projects.length === 0) {
-                    loadSampleData();
-                    saveProjectsToLocalStorage();
-                }
+                // Do not load sample data - user should add projects manually
             }
             renderTable();
             updateStats();
+            
+            // Sync costing data from Firestore to localStorage (async)
+            syncCostingDataFromFirestore();
         });
+        
+        // Sync costing data from Firestore to localStorage
+        async function syncCostingDataFromFirestore() {
+            const hasFirebase = typeof firebase !== 'undefined' && typeof db !== 'undefined';
+            if (!hasFirebase) return;
+            
+            try {
+                // Load all costings from Firestore
+                const costingsSnapshot = await firestoreCollections.costings().get();
+                let updated = false;
+                
+                costingsSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    const projectId = data.projectId;
+                    const milestoneId = data.milestoneId || 'costing';
+                    
+                    // Only sync costing milestone data
+                    if (milestoneId === 'costing' && projectId) {
+                        const costingKey = `costing_${projectId}_costing`;
+                        const existing = localStorage.getItem(costingKey);
+                        
+                        // Update localStorage if Firestore has newer data or localStorage is empty
+                        if (!existing || (data.updatedAt && (!existing || !JSON.parse(existing).updatedAt))) {
+                            localStorage.setItem(costingKey, JSON.stringify({
+                                lineItems: data.lineItems || [],
+                                counter: data.counter || 1,
+                                discount: data.discount || 0,
+                                updatedAt: data.updatedAt
+                            }));
+                            updated = true;
+                        }
+                    }
+                });
+                
+                // Re-render table if we updated any costing data
+                if (updated) {
+                    renderTable();
+                }
+            } catch (e) {
+                console.error('Error syncing costing data from Firestore:', e);
+            }
+        }
 
         // Modal functions
         function openModal() {
@@ -1308,14 +1349,23 @@
         // Get equipment split for a project
         function getEquipmentSplit(projectId) {
             const costingKey = `costing_${projectId}_costing`;
-            const saved = localStorage.getItem(costingKey);
+            let data = null;
             
-            if (!saved) {
+            // Check localStorage (synchronous)
+            const saved = localStorage.getItem(costingKey);
+            if (saved) {
+                try {
+                    data = JSON.parse(saved);
+                } catch (e) {
+                    console.error('Error parsing costing data:', e);
+                }
+            }
+            
+            if (!data) {
                 return '<span style="color: var(--text-tertiary); font-size: 12px;">No costing data</span>';
             }
 
             try {
-                const data = JSON.parse(saved);
                 const lineItems = data.lineItems || [];
                 const discount = data.discount || 0;
                 
@@ -1394,14 +1444,23 @@
         // Get costing summary for a project
         function getCostingSummary(projectId) {
             const costingKey = `costing_${projectId}_costing`;
-            const saved = localStorage.getItem(costingKey);
+            let data = null;
             
-            if (!saved) {
+            // Check localStorage (synchronous)
+            const saved = localStorage.getItem(costingKey);
+            if (saved) {
+                try {
+                    data = JSON.parse(saved);
+                } catch (e) {
+                    console.error('Error parsing costing data:', e);
+                }
+            }
+            
+            if (!data) {
                 return '<span style="color: var(--text-tertiary); font-size: 12px;">No costing data</span>';
             }
 
             try {
-                const data = JSON.parse(saved);
                 const lineItems = data.lineItems || [];
                 const discount = data.discount || 0;
                 
@@ -1897,60 +1956,6 @@
                 .replace(/'/g, "&#039;");
         }
 
-        // Load sample data
-        function loadSampleData() {
-            projects = [
-                {
-                    id: projectIdCounter++,
-                    name: 'Mining Equipment Upgrade',
-                    region: 'Australia',
-                    crmReference: 'CRM-2025-001',
-                    forecast: 'WON',
-                    followUpDate: '2025-11-20',
-                    airtableLink: 'https://airtable.com/sample1',
-                    costMarginSell: '',
-                    lastUpdate: '',
-                    actions: ''
-                },
-                {
-                    id: projectIdCounter++,
-                    name: 'Safety System Implementation',
-                    region: 'North America',
-                    crmReference: 'CRM-2025-002',
-                    forecast: 'WIV',
-                    followUpDate: '2025-11-15',
-                    airtableLink: 'https://airtable.com/sample2',
-                    costMarginSell: '',
-                    lastUpdate: '',
-                    actions: ''
-                },
-                {
-                    id: projectIdCounter++,
-                    name: 'Infrastructure Development',
-                    region: 'Africa',
-                    crmReference: 'CRM-2025-003',
-                    forecast: 'FWD',
-                    followUpDate: '2025-12-01',
-                    airtableLink: '',
-                    costMarginSell: '',
-                    lastUpdate: '',
-                    actions: ''
-                },
-                {
-                    id: projectIdCounter++,
-                    name: 'Digital Transformation Project',
-                    region: 'India',
-                    crmReference: 'CRM-2025-004',
-                    forecast: 'WIV',
-                    followUpDate: '2025-11-18',
-                    airtableLink: 'https://airtable.com/sample4',
-                    costMarginSell: '',
-                    lastUpdate: '',
-                    actions: ''
-                }
-            ];
-            saveProjectsToLocalStorage();
-        }
     </script>
 </body>
 </html>
