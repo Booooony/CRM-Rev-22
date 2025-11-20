@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - Mechanical Products CRM</title>
+    <link rel="stylesheet" href="dashboard-styles.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <style>
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 4px 0;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-success) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin: 0;
+            font-weight: 400;
+        }
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 0;
+        }
+
+        .nav-tab {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .nav-tab:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-tab.active {
+            color: var(--accent-success);
+            border-bottom-color: var(--accent-success);
+        }
+
+        /* Analytics */
+        .analytics-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .metric-selector {
+            display: flex;
+            gap: 2px;
+            background-color: var(--bg-elevated);
+            padding: 2px;
+            border-radius: var(--radius-sm);
+        }
+
+        .metric-btn {
+            padding: 6px 14px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: all 0.2s;
+        }
+
+        .metric-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .metric-btn.active {
+            background-color: var(--accent-success);
+            color: white;
+        }
+
+        .analytics-card {
+            background-color: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-xl);
+            box-shadow: var(--shadow-md);
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background-color: var(--bg-elevated);
+            border-radius: var(--radius-sm);
+            padding: var(--spacing-lg);
+        }
+
+        .chart-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-lg);
+            justify-content: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+
+        /* Margin Target Section */
+        .margin-target-card {
+            background-color: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-md);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .margin-target-header {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .margin-target-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .margin-target-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .margin-stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .margin-stat-label {
+            font-size: 10px;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            font-weight: 600;
+        }
+
+        .margin-stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .margin-stat-value.achieved {
+            color: var(--accent-success);
+        }
+
+        .margin-progress-container {
+            margin-top: var(--spacing-md);
+        }
+
+        .margin-progress-bar {
+            width: 100%;
+            height: 24px;
+            background-color: var(--bg-elevated);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            position: relative;
+            border: 1px solid var(--border-medium);
+        }
+
+        .margin-progress-fill {
+            height: 100%;
+            background-color: var(--accent-success);
+            border-radius: var(--radius-sm);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            min-width: 0;
+        }
+
+        .margin-progress-text {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-primary);
+            z-index: 2;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .margin-progress-fill .margin-progress-text {
+            color: white;
+        }
+
+        .margin-percentage {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-top: 6px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container" style="padding: 24px; max-width: 1400px; margin: 0 auto;">
+        
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Mechanical Products CRM</h1>
+            <p class="page-subtitle">Forecast analytics and insights</p>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <a href="index.html" class="nav-tab">Projects</a>
+            <a href="equipment-catalogue.html" class="nav-tab">Equipment Catalogue</a>
+            <a href="analytics.html" class="nav-tab active">Analytics</a>
+        </div>
+
+        <!-- Margin Target Section -->
+        <div class="margin-target-card">
+            <div class="margin-target-header">
+                <h2 class="margin-target-title">Equipment Sales Margin Target</h2>
+            </div>
+            <div class="margin-target-stats">
+                <div class="margin-stat-item">
+                    <div class="margin-stat-label">Target</div>
+                    <div class="margin-stat-value" id="marginTarget">$3.5M</div>
+                </div>
+                <div class="margin-stat-item">
+                    <div class="margin-stat-label">Achieved</div>
+                    <div class="margin-stat-value achieved" id="marginAchieved">$0</div>
+                </div>
+                <div class="margin-stat-item">
+                    <div class="margin-stat-label">Remaining</div>
+                    <div class="margin-stat-value" id="marginRemaining">$3.5M</div>
+                </div>
+            </div>
+            <div class="margin-progress-container">
+                <div class="margin-progress-bar">
+                    <div class="margin-progress-fill" id="marginProgressFill" style="width: 0%;">
+                        <div class="margin-progress-text" id="marginProgressText">0%</div>
+                    </div>
+                    <div class="margin-progress-text" id="marginProgressTextOverlay" style="display: none;">0%</div>
+                </div>
+                <div class="margin-percentage" id="marginPercentage">0% of target achieved</div>
+            </div>
+        </div>
+
+        <!-- Analytics Section -->
+        <div class="analytics-card">
+            <div class="analytics-header">
+                <h2 class="chart-title">Forecast Breakdown by Equipment Type</h2>
+                <div class="metric-selector">
+                    <button class="metric-btn active" id="costMetric" onclick="selectMetric('cost')">Cost</button>
+                    <button class="metric-btn" id="revenueMetric" onclick="selectMetric('revenue')">Revenue</button>
+                    <button class="metric-btn" id="marginMetric" onclick="selectMetric('margin')">Margin</button>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="forecastChart" class="chart-canvas"></canvas>
+            </div>
+
+            <div class="legend" id="legend">
+                <!-- Legend items will be dynamically inserted -->
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Margin target configuration
+        const MARGIN_TARGET = 3500000; // 3.5M in dollars
+
+        // Load projects from localStorage
+        let projects = [];
+
+        async function loadProjects() {
+            try {
+                if (window.db) {
+                    // Use Firestore
+                    const projectsSnapshot = await window.db.collection('projects').get();
+                    projects = projectsSnapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+                } else {
+                    // Fallback to localStorage
+                    const projectsData = localStorage.getItem('crmProjects');
+                    if (projectsData) {
+                        projects = JSON.parse(projectsData);
+                    }
+                }
+            } catch (e) {
+                console.error('Error loading projects:', e);
+                // Fallback to localStorage
+                const projectsData = localStorage.getItem('crmProjects');
+                if (projectsData) {
+                    try {
+                        projects = JSON.parse(projectsData);
+                    } catch (parseError) {
+                        console.error('Error parsing projects from localStorage:', parseError);
+                    }
+                }
+            }
+        }
+
+        // Calculate total margin achieved (only from WON projects)
+        async function calculateTotalMargin() {
+            let totalMargin = 0;
+
+            // Filter to only WON projects
+            const wonProjects = projects.filter(project => project.forecast === 'WON');
+
+            for (const project of wonProjects) {
+                try {
+                    let costingData = null;
+                    const costingKey = `${project.id}_costing`;
+
+                    if (window.db) {
+                        // Use Firestore
+                        const costingDoc = await window.db.collection('costings').doc(costingKey).get();
+                        if (costingDoc.exists) {
+                            costingData = costingDoc.data();
+                        }
+                    } else {
+                        // Fallback to localStorage
+                        const saved = localStorage.getItem(`costing_${costingKey}`);
+                        if (saved) {
+                            costingData = JSON.parse(saved);
+                        }
+                    }
+
+                    if (!costingData) continue;
+
+                    const lineItems = costingData.lineItems || [];
+                    const discountPercent = costingData.discount || 0;
+
+                    lineItems.forEach(item => {
+                        const cost = parseFloat(item.cost.replace(/[$,]/g, '')) || 0;
+                        const margin = parseFloat(item.margin) || 0;
+                        const qty = parseFloat(item.quantity) || 1;
+                        // Sell Price = Cost / (1 - Margin%)
+                        const marginDecimal = margin / 100;
+                        const unitPrice = marginDecimal >= 1 ? cost : cost / (1 - marginDecimal);
+                        const revenueBeforeDiscount = unitPrice * qty;
+                        const discountAmount = revenueBeforeDiscount * (discountPercent / 100);
+                        const revenue = revenueBeforeDiscount - discountAmount;
+                        const marginAmount = revenue - (cost * qty);
+
+                        totalMargin += marginAmount;
+                    });
+                } catch (e) {
+                    console.error('Error calculating margin for project:', project.id, e);
+                }
+            }
+
+            return totalMargin;
+        }
+
+        // Update margin target display
+        async function updateMarginTarget() {
+            const totalMargin = await calculateTotalMargin();
+            const remaining = Math.max(0, MARGIN_TARGET - totalMargin);
+            const percentage = Math.min(100, (totalMargin / MARGIN_TARGET) * 100);
+
+            // Format currency
+            const formatCurrency = (amount) => {
+                if (amount >= 1000000) {
+                    return '$' + (amount / 1000000).toFixed(2) + 'M';
+                } else if (amount >= 1000) {
+                    return '$' + (amount / 1000).toFixed(1) + 'K';
+                } else {
+                    return '$' + Math.round(amount).toLocaleString('en-US');
+                }
+            };
+
+            // Update stat values
+            document.getElementById('marginTarget').textContent = formatCurrency(MARGIN_TARGET);
+            document.getElementById('marginAchieved').textContent = formatCurrency(totalMargin);
+            document.getElementById('marginRemaining').textContent = formatCurrency(remaining);
+
+            // Update progress bar
+            const progressFill = document.getElementById('marginProgressFill');
+            const progressText = document.getElementById('marginProgressText');
+            const progressTextOverlay = document.getElementById('marginProgressTextOverlay');
+            const percentageText = document.getElementById('marginPercentage');
+
+            progressFill.style.width = percentage + '%';
+
+            // Show percentage text inside or outside the bar
+            if (percentage >= 15) {
+                progressText.style.display = 'flex';
+                progressTextOverlay.style.display = 'none';
+                progressText.textContent = percentage.toFixed(1) + '%';
+            } else {
+                progressText.style.display = 'none';
+                progressTextOverlay.style.display = 'flex';
+                progressTextOverlay.textContent = percentage.toFixed(1) + '%';
+            }
+
+            percentageText.textContent = `${percentage.toFixed(1)}% of target achieved (${formatCurrency(totalMargin)} / ${formatCurrency(MARGIN_TARGET)})`;
+        }
+
+        // Current metric
+        let currentMetric = 'cost';
+
+        function selectMetric(metric) {
+            currentMetric = metric;
+            
+            // Update button states
+            document.querySelectorAll('.metric-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`${metric}Metric`).classList.add('active');
+            
+            // Redraw chart
+            renderChart();
+        }
+
+        async function renderChart() {
+            const forecasts = ['WON', 'FWD', 'WIV'];
+            const canvas = document.getElementById('forecastChart');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas size
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth - 48;
+            canvas.height = container.clientHeight - 48;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Calculate data for all forecasts
+            const forecastData = {};
+            const allEquipmentTypes = new Set();
+            
+            for (const forecast of forecasts) {
+                const forecastProjects = projects.filter(p => p.forecast === forecast);
+                const data = await calculateForecastData(forecastProjects);
+                forecastData[forecast] = data;
+                
+                // Collect all equipment types
+                Object.keys(data.equipmentTypeData).forEach(type => allEquipmentTypes.add(type));
+            }
+            
+            // Convert to sorted array
+            const equipmentTypes = Array.from(allEquipmentTypes).sort();
+            
+            // Colors for equipment types
+            const colors = [
+                '#4ade80', '#60a5fa', '#f59e0b', '#ec4899', 
+                '#a78bfa', '#14b8a6', '#fb923c', '#06b6d4'
+            ];
+            
+            // Find max total for scaling
+            const maxTotal = Math.max(...forecasts.map(f => forecastData[f].total));
+            
+            if (maxTotal === 0) {
+                ctx.fillStyle = '#6b7280';
+                ctx.font = '14px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('No costing data available', canvas.width / 2, canvas.height / 2);
+                return;
+            }
+            
+            const padding = 60;
+            const chartWidth = canvas.width - 2 * padding;
+            const chartHeight = canvas.height - 2 * padding - 40; // Space for labels
+            
+            const barWidth = Math.min(120, chartWidth / 4);
+            const spacing = (chartWidth - (barWidth * 3)) / 4;
+            
+            // Draw bars for each forecast
+            forecasts.forEach((forecast, forecastIndex) => {
+                const data = forecastData[forecast];
+                const x = padding + spacing + (forecastIndex * (barWidth + spacing));
+                
+                let currentY = padding + chartHeight;
+                
+                // Sort equipment types by value for this forecast
+                const sortedTypes = equipmentTypes
+                    .map(type => ({
+                        type,
+                        value: data.equipmentTypeData[type] ? data.equipmentTypeData[type][currentMetric] : 0
+                    }))
+                    .filter(item => item.value > 0)
+                    .sort((a, b) => b.value - a.value);
+                
+                // Draw stacked segments
+                sortedTypes.forEach(({ type, value }) => {
+                    const segmentHeight = (value / maxTotal) * chartHeight;
+                    const colorIndex = equipmentTypes.indexOf(type);
+                    const color = colors[colorIndex % colors.length];
+                    
+                    currentY -= segmentHeight;
+                    
+                    // Draw segment
+                    ctx.fillStyle = color;
+                    ctx.fillRect(x, currentY, barWidth, segmentHeight);
+                    
+                    // Draw percentage if large enough
+                    if (segmentHeight > 20 && data.total > 0) {
+                        const percent = ((value / data.total) * 100).toFixed(0);
+                        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+                        ctx.font = 'bold 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(`${percent}%`, x + barWidth / 2, currentY + segmentHeight / 2 + 4);
+                    }
+                });
+                
+                // Draw forecast label
+                ctx.fillStyle = '#9ca3af';
+                ctx.font = 'bold 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(forecast, x + barWidth / 2, padding + chartHeight + 25);
+                
+                // Draw total value
+                ctx.fillStyle = '#e5e7eb';
+                ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif';
+                ctx.fillText('$' + Math.round(data.total).toLocaleString('en-US'), x + barWidth / 2, padding + chartHeight + 42);
+            });
+            
+            // Draw Y-axis
+            const gridLines = 5;
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+            ctx.lineWidth = 1;
+            ctx.fillStyle = '#9ca3af';
+            ctx.font = '11px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif';
+            ctx.textAlign = 'right';
+            
+            for (let i = 0; i <= gridLines; i++) {
+                const y = padding + (chartHeight / gridLines) * i;
+                const value = maxTotal - (maxTotal / gridLines) * i;
+                
+                // Draw grid line
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(canvas.width - padding, y);
+                ctx.stroke();
+                
+                // Draw label
+                ctx.fillText('$' + Math.round(value).toLocaleString('en-US'), padding - 10, y + 4);
+            }
+            
+            // Update legend
+            updateLegend(equipmentTypes, colors);
+        }
+
+        async function calculateForecastData(forecastProjects) {
+            const equipmentTypeData = {};
+            let total = 0;
+            
+            for (const project of forecastProjects) {
+                try {
+                    let costingData = null;
+                    const costingKey = `${project.id}_costing`;
+
+                    if (window.db) {
+                        // Use Firestore
+                        const costingDoc = await window.db.collection('costings').doc(costingKey).get();
+                        if (costingDoc.exists) {
+                            costingData = costingDoc.data();
+                        }
+                    } else {
+                        // Fallback to localStorage
+                        const saved = localStorage.getItem(`costing_${costingKey}`);
+                        if (saved) {
+                            costingData = JSON.parse(saved);
+                        }
+                    }
+
+                    if (!costingData) continue;
+
+                    const lineItems = costingData.lineItems || [];
+                    const discountPercent = costingData.discount || 0;
+                    
+                    lineItems.forEach(item => {
+                        const type = item.equipmentType || 'Other';
+                        const cost = parseFloat(item.cost.replace(/[$,]/g, '')) || 0;
+                        const margin = parseFloat(item.margin) || 0;
+                        const qty = parseFloat(item.quantity) || 1;
+                        // Sell Price = Cost / (1 - Margin%)
+                        const marginDecimal = margin / 100;
+                        const unitPrice = marginDecimal >= 1 ? cost : cost / (1 - marginDecimal);
+                        const revenueBeforeDiscount = unitPrice * qty;
+                        const discountAmount = revenueBeforeDiscount * (discountPercent / 100);
+                        const revenue = revenueBeforeDiscount - discountAmount;
+                        const marginAmount = revenue - (cost * qty);
+                        
+                        if (!equipmentTypeData[type]) {
+                            equipmentTypeData[type] = {
+                                cost: 0,
+                                revenue: 0,
+                                margin: 0
+                            };
+                        }
+                        
+                        equipmentTypeData[type].cost += cost * qty;
+                        equipmentTypeData[type].revenue += revenue;
+                        equipmentTypeData[type].margin += marginAmount;
+                    });
+                } catch (e) {
+                    console.error('Error calculating analytics:', e);
+                }
+            }
+            
+            // Calculate total for current metric
+            Object.values(equipmentTypeData).forEach(data => {
+                total += data[currentMetric];
+            });
+            
+            return { equipmentTypeData, total };
+        }
+
+        function updateLegend(equipmentTypes, colors) {
+            const legend = document.getElementById('legend');
+            legend.innerHTML = equipmentTypes.map((type, index) => {
+                const color = colors[index % colors.length];
+                return `
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: ${color};"></div>
+                        <span>${type}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadProjects();
+            await updateMarginTarget();
+            // Delay chart rendering to ensure canvas is properly sized
+            setTimeout(async () => await renderChart(), 100);
+        });
+    </script>
+</body>
+</html>
+

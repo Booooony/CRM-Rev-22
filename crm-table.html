@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Projects Table</title>
+    <link rel="stylesheet" href="dashboard-styles.css">
+    <style>
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 4px 0;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-success) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin: 0;
+            font-weight: 400;
+        }
+
+        .brand-highlight {
+            color: var(--accent-success);
+        }
+
+        .form-card {
+            background-color: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+            box-shadow: var(--shadow-md);
+        }
+
+        .form-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 var(--spacing-lg) 0;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .form-input,
+        .form-select {
+            padding: 10px 12px;
+            background-color: var(--bg-elevated);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: var(--font-family);
+            transition: all 0.2s;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--accent-success);
+            background-color: var(--bg-secondary);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-family: var(--font-family);
+        }
+
+        .btn-primary {
+            background-color: var(--accent-success);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-success-dark);
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-elevated);
+            color: var(--text-primary);
+            border: 1px solid var(--border-medium);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--hover-overlay);
+        }
+
+        .link-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            background-color: var(--accent-info);
+            color: white;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .link-button:hover {
+            background-color: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        .link-button.disabled {
+            background-color: var(--bg-elevated);
+            color: var(--text-tertiary);
+            pointer-events: none;
+        }
+
+        .editable-date {
+            background-color: transparent;
+            border: 1px solid transparent;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 400;
+            font-family: var(--font-family);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .editable-date:hover {
+            background-color: var(--hover-overlay);
+            border-color: var(--border-medium);
+        }
+
+        .editable-date:focus {
+            outline: none;
+            border-color: var(--accent-success);
+            background-color: var(--bg-elevated);
+        }
+
+        /* Style the calendar icon */
+        .editable-date::-webkit-calendar-picker-indicator {
+            filter: invert(0.7);
+            opacity: 0.7;
+            cursor: pointer;
+        }
+
+        .editable-date::-webkit-calendar-picker-indicator:hover {
+            opacity: 1;
+        }
+
+        .forecast-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+            background-color: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+        }
+
+        .forecast-badge::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .forecast-won::before {
+            background-color: var(--accent-success);
+        }
+
+        .forecast-wiv::before {
+            background-color: var(--accent-warning);
+        }
+
+        .forecast-fwd::before {
+            background-color: var(--accent-error);
+        }
+
+        .forecast-badge {
+            cursor: pointer;
+            position: relative;
+        }
+
+        .forecast-badge:hover {
+            background-color: rgba(255, 255, 255, 0.12);
+        }
+
+        /* Forecast Dropdown */
+        .forecast-dropdown-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-lg);
+            min-width: 140px;
+            z-index: 100;
+            padding: 4px;
+        }
+
+        .forecast-dropdown-menu.show {
+            display: block;
+        }
+
+        .forecast-option {
+            padding: 8px 12px;
+            color: var(--text-primary);
+            font-size: 13px;
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .forecast-option:hover {
+            background-color: var(--hover-overlay);
+        }
+
+        .forecast-option::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .forecast-option[data-forecast="WON"]::before {
+            background-color: var(--accent-success);
+        }
+
+        .forecast-option[data-forecast="WIV"]::before {
+            background-color: var(--accent-warning);
+        }
+
+        .forecast-option[data-forecast="FWD"]::before {
+            background-color: var(--accent-error);
+        }
+
+        .region-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: 500;
+            background-color: rgba(255, 255, 255, 0.08);
+            color: var(--text-secondary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: var(--text-tertiary);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .empty-state-subtext {
+            font-size: 14px;
+        }
+
+        .table-stats {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+            padding: 0 var(--spacing-lg);
+        }
+
+        .stat-item {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .stat-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Enhanced Table Styling */
+        .data-table {
+            background-color: #121212;
+        }
+
+        .data-table thead {
+            background-color: rgba(255, 255, 255, 0.06);
+        }
+
+        .data-table thead tr {
+            background-color: rgba(255, 255, 255, 0.06);
+        }
+
+        .data-table th {
+            padding: 14px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #9ca3af;
+            text-transform: none;
+            letter-spacing: 0.3px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .data-table tbody {
+            background-color: #121212;
+        }
+
+        .data-table tbody tr {
+            background-color: #121212;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .data-table tbody tr:hover {
+            background-color: #1a1a1a;
+        }
+
+        .data-table td {
+            padding: 14px 16px;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .data-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .cell-drag-handle {
+            width: 40px;
+            color: var(--text-tertiary);
+            font-size: 18px;
+            cursor: grab;
+            user-select: none;
+            text-align: center;
+        }
+
+        .cell-checkbox {
+            width: 48px;
+        }
+
+        .more-options-button {
+            color: var(--text-tertiary);
+            font-size: 20px;
+            padding: 6px;
+            line-height: 1;
+        }
+
+        .data-table td strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Consistent font for specific columns */
+        .data-table td {
+            font-size: 14px;
+            font-weight: 400;
+        }
+
+        .editable-date {
+            font-size: 14px;
+            font-weight: 400;
+        }
+
+        /* Filter Buttons */
+        .filter-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background-color: var(--bg-elevated);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .filter-btn:hover {
+            background-color: var(--hover-overlay);
+            color: var(--text-primary);
+        }
+
+        .filter-btn.active {
+            background-color: var(--accent-success);
+            border-color: var(--accent-success);
+            color: white;
+        }
+
+        .filter-count {
+            display: inline-block;
+            padding: 2px 8px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .filter-btn.active .filter-count {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .table-header-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        /* Search Bar */
+        .search-bar {
+            position: relative;
+            flex: 1;
+            max-width: 300px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 8px 16px 8px 36px;
+            background-color: var(--bg-elevated);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 13px;
+            font-family: var(--font-family);
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-success);
+            background-color: var(--bg-secondary);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        /* Dropdown Filter */
+        .filter-dropdown {
+            position: relative;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-lg);
+            min-width: 180px;
+            z-index: 100;
+            padding: 4px;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 8px 12px;
+            color: var(--text-primary);
+            font-size: 13px;
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--hover-overlay);
+        }
+
+        .dropdown-item.active {
+            background-color: var(--active-overlay);
+            color: var(--accent-success);
+        }
+
+        .dropdown-item .checkmark {
+            color: var(--accent-success);
+            font-size: 14px;
+        }
+
+        .filter-btn.has-selection {
+            border-color: var(--accent-success);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 0;
+            max-width: 700px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .modal-header {
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 28px;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            background-color: var(--hover-overlay);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: var(--spacing-lg);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+        }
+
+        .btn-add-project {
+            padding: 10px 20px;
+            background-color: var(--accent-success);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-add-project:hover {
+            background-color: var(--accent-success-dark);
+            transform: translateY(-1px);
+        }
+
+        .page-header {
+            margin-bottom: 32px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container" style="padding: 24px; max-width: 1600px; margin: 0 auto;">
+        
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Mechanical Products CRM</h1>
+            <p class="page-subtitle">Track projects, opportunities and client relationships</p>
+        </div>
+
+        <!-- Add Project Modal -->
+        <div id="addProjectModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Add New Project</h2>
+                    <button class="modal-close" onclick="closeModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="addProjectForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label" for="projectName">Project Name *</label>
+                        <input 
+                            type="text" 
+                            id="projectName" 
+                            class="form-input" 
+                            placeholder="Enter project name"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="region">Region *</label>
+                        <select id="region" class="form-select" required>
+                            <option value="">Select region...</option>
+                            <option value="Africa">Africa</option>
+                            <option value="North America">North America</option>
+                            <option value="South America">South America</option>
+                            <option value="Australia">Australia</option>
+                            <option value="India">India</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="crmReference">CRM Reference *</label>
+                        <input 
+                            type="text" 
+                            id="crmReference" 
+                            class="form-input" 
+                            placeholder="e.g., CRM-2025-001"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="forecast">Forecast *</label>
+                        <select id="forecast" class="form-select" required>
+                            <option value="">Select forecast...</option>
+                            <option value="WON">WON - Won</option>
+                            <option value="WIV">WIV - Work in View</option>
+                            <option value="FWD">FWD - Forward</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="followUpDate">Next Follow-up Date</label>
+                        <input 
+                            type="date" 
+                            id="followUpDate" 
+                            class="form-input"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="airtableLink">Airtable Link</label>
+                        <input 
+                            type="url" 
+                            id="airtableLink" 
+                            class="form-input" 
+                            placeholder="https://airtable.com/..."
+                        >
+                    </div>
+                </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="resetForm()">Clear</button>
+                            <button type="submit" class="btn btn-primary">Add Project</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="filter-buttons">
+                <button class="btn-add-project" onclick="openModal()">
+                    <span>+</span> Add Project
+                </button>
+                <button class="filter-btn active" data-filter="all">
+                    All
+                    <span class="filter-count" id="allCount">0</span>
+                </button>
+                
+                <!-- Region Filter -->
+                <div class="filter-dropdown">
+                    <button class="filter-btn" id="regionFilterBtn" onclick="toggleDropdown('regionDropdown')">
+                        Region <span>▼</span>
+                    </button>
+                    <div class="dropdown-menu" id="regionDropdown">
+                        <div class="dropdown-item active" data-value="all" onclick="selectRegion('all')">
+                            All Regions
+                            <span class="checkmark">✓</span>
+                        </div>
+                        <div class="dropdown-item" data-value="Africa" onclick="selectRegion('Africa')">
+                            Africa
+                        </div>
+                        <div class="dropdown-item" data-value="North America" onclick="selectRegion('North America')">
+                            North America
+                        </div>
+                        <div class="dropdown-item" data-value="South America" onclick="selectRegion('South America')">
+                            South America
+                        </div>
+                        <div class="dropdown-item" data-value="Australia" onclick="selectRegion('Australia')">
+                            Australia
+                        </div>
+                        <div class="dropdown-item" data-value="India" onclick="selectRegion('India')">
+                            India
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Forecast Filter -->
+                <div class="filter-dropdown">
+                    <button class="filter-btn" id="forecastFilterBtn" onclick="toggleDropdown('forecastDropdown')">
+                        Forecast <span>▼</span>
+                    </button>
+                    <div class="dropdown-menu" id="forecastDropdown">
+                        <div class="dropdown-item active" data-value="all" onclick="selectForecast('all')">
+                            All Forecasts
+                            <span class="checkmark">✓</span>
+                        </div>
+                        <div class="dropdown-item" data-value="WON" onclick="selectForecast('WON')">
+                            WON
+                        </div>
+                        <div class="dropdown-item" data-value="WIV" onclick="selectForecast('WIV')">
+                            WIV
+                        </div>
+                        <div class="dropdown-item" data-value="FWD" onclick="selectForecast('FWD')">
+                            FWD
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search Bar -->
+                <div class="search-bar">
+                    <span class="search-icon">🔍</span>
+                    <input 
+                        type="text" 
+                        class="search-input" 
+                        id="searchInput" 
+                        placeholder="Search projects..."
+                        oninput="searchProjects()"
+                    >
+                </div>
+            </div>
+            <div class="table-header-actions">
+                <button class="action-button">
+                    Export Data <span>↓</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Projects Table -->
+        <section class="table-container">
+            <div id="tableWrapper">
+                <table class="data-table" id="projectsTable">
+                    <thead>
+                        <tr>
+                            <th class="cell-drag-handle"></th>
+                            <th class="cell-checkbox">
+                                <input type="checkbox" id="selectAll" aria-label="Select all rows">
+                            </th>
+                            <th>Project Name</th>
+                            <th>Region</th>
+                            <th>CRM Reference</th>
+                            <th>Forecast</th>
+                            <th>Next Follow-up</th>
+                            <th>Cost/Margin/Sell</th>
+                            <th>Last Update</th>
+                            <th>Airtable</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="projectsTableBody">
+                        <!-- Rows will be dynamically added here -->
+                    </tbody>
+                </table>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="empty-state">
+                    <div class="empty-state-icon">📋</div>
+                    <div class="empty-state-text">No projects yet</div>
+                    <div class="empty-state-subtext">Add your first project using the form above</div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Projects data store
+        let projects = [];
+        let projectIdCounter = 1;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSampleData();
+            renderTable();
+            updateStats();
+        });
+
+        // Modal functions
+        function openModal() {
+            document.getElementById('addProjectModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('addProjectModal').classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal on background click
+        document.getElementById('addProjectModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Form submission
+        document.getElementById('addProjectForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const project = {
+                id: projectIdCounter++,
+                name: document.getElementById('projectName').value,
+                region: document.getElementById('region').value,
+                crmReference: document.getElementById('crmReference').value,
+                forecast: document.getElementById('forecast').value,
+                followUpDate: document.getElementById('followUpDate').value,
+                airtableLink: document.getElementById('airtableLink').value,
+                costMarginSell: '',
+                lastUpdate: '',
+                actions: ''
+            };
+
+            projects.push(project);
+            renderTable();
+            updateStats();
+            resetForm();
+            closeModal();
+            
+            // Show success feedback
+            showNotification('Project added successfully!');
+        });
+
+        // Simple notification function
+        function showNotification(message) {
+            // You can replace this with a better notification system
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background-color: var(--accent-success);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                z-index: 2000;
+                animation: slideInRight 0.3s ease-out;
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease-out';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Reset form
+        function resetForm() {
+            document.getElementById('addProjectForm').reset();
+        }
+
+        // Render table
+        function renderTable() {
+            const tbody = document.getElementById('projectsTableBody');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (projects.length === 0) {
+                emptyState.style.display = 'block';
+                tbody.innerHTML = '';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            
+            tbody.innerHTML = projects.map(project => `
+                <tr data-id="${project.id}">
+                    <td class="cell-drag-handle">⋮⋮</td>
+                    <td class="cell-checkbox">
+                        <input type="checkbox" aria-label="Select row">
+                    </td>
+                    <td><strong>${escapeHtml(project.name)}</strong></td>
+                    <td><span class="region-badge">${escapeHtml(project.region)}</span></td>
+                    <td>${escapeHtml(project.crmReference)}</td>
+                    <td>
+                        <div style="position: relative; display: inline-block;">
+                            <span class="forecast-badge forecast-${project.forecast.toLowerCase()}" onclick="toggleForecastDropdown(${project.id}, event)">
+                                ${escapeHtml(project.forecast)}
+                            </span>
+                            <div class="forecast-dropdown-menu" id="forecast-dropdown-${project.id}">
+                                <div class="forecast-option" data-forecast="WON" onclick="updateForecast(${project.id}, 'WON')">
+                                    WON
+                                </div>
+                                <div class="forecast-option" data-forecast="WIV" onclick="updateForecast(${project.id}, 'WIV')">
+                                    WIV
+                                </div>
+                                <div class="forecast-option" data-forecast="FWD" onclick="updateForecast(${project.id}, 'FWD')">
+                                    FWD
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <input 
+                            type="date" 
+                            class="editable-date" 
+                            value="${project.followUpDate}"
+                            onchange="updateFollowUpDate(${project.id}, this.value)"
+                        >
+                    </td>
+                    <td style="color: var(--text-tertiary); font-size: 13px;">-</td>
+                    <td style="color: var(--text-tertiary); font-size: 13px;">-</td>
+                    <td>
+                        ${project.airtableLink 
+                            ? `<a href="${escapeHtml(project.airtableLink)}" target="_blank" class="link-button">
+                                🔗 Open
+                               </a>`
+                            : `<span class="link-button disabled">No link</span>`
+                        }
+                    </td>
+                    <td style="text-align: center;">
+                        <button class="more-options-button" onclick="showActions(${project.id})">⋮</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Re-attach event listeners for checkboxes
+            attachCheckboxListeners();
+        }
+
+        // Update follow-up date
+        function updateFollowUpDate(projectId, newDate) {
+            const project = projects.find(p => p.id === projectId);
+            if (project) {
+                project.followUpDate = newDate;
+                updateStats();
+            }
+        }
+
+        // Filter state
+        let currentFilters = {
+            region: 'all',
+            forecast: 'all',
+            search: ''
+        };
+
+        // Update statistics
+        function updateStats() {
+            const total = projects.length;
+            document.getElementById('allCount').textContent = total;
+        }
+
+        // Show actions menu
+        function showActions(projectId) {
+            const project = projects.find(p => p.id === projectId);
+            if (!project) return;
+
+            const action = confirm(`Actions for "${project.name}":\n\nClick OK to delete this project, or Cancel to close.`);
+            
+            if (action) {
+                projects = projects.filter(p => p.id !== projectId);
+                renderTable();
+                updateStats();
+            }
+        }
+
+        // Attach checkbox listeners
+        function attachCheckboxListeners() {
+            const tableRows = document.querySelectorAll('.data-table tbody tr');
+            tableRows.forEach(row => {
+                const checkbox = row.querySelector('input[type="checkbox"]');
+                if (checkbox) {
+                    checkbox.addEventListener('change', function() {
+                        if (this.checked) {
+                            row.classList.add('selected');
+                        } else {
+                            row.classList.remove('selected');
+                        }
+                    });
+                }
+            });
+        }
+
+        // Select all functionality
+        document.getElementById('selectAll').addEventListener('change', function() {
+            const allCheckboxes = document.querySelectorAll('.data-table tbody input[type="checkbox"]');
+            allCheckboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+                const row = checkbox.closest('tr');
+                if (this.checked) {
+                    row.classList.add('selected');
+                } else {
+                    row.classList.remove('selected');
+                }
+            });
+        });
+
+        // Dropdown toggle
+        function toggleDropdown(dropdownId) {
+            const dropdown = document.getElementById(dropdownId);
+            const allDropdowns = document.querySelectorAll('.dropdown-menu');
+            
+            // Close other dropdowns
+            allDropdowns.forEach(d => {
+                if (d.id !== dropdownId) {
+                    d.classList.remove('show');
+                }
+            });
+            
+            dropdown.classList.toggle('show');
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.filter-dropdown')) {
+                document.querySelectorAll('.dropdown-menu').forEach(d => d.classList.remove('show'));
+            }
+        });
+
+        // Select region filter
+        function selectRegion(value) {
+            currentFilters.region = value;
+            
+            // Update active state in dropdown
+            const items = document.querySelectorAll('#regionDropdown .dropdown-item');
+            items.forEach(item => {
+                if (item.getAttribute('data-value') === value) {
+                    item.classList.add('active');
+                    item.innerHTML = item.textContent.replace(' ✓', '') + ' <span class="checkmark">✓</span>';
+                } else {
+                    item.classList.remove('active');
+                    item.innerHTML = item.textContent.replace(' ✓', '');
+                }
+            });
+            
+            // Update button appearance
+            const btn = document.getElementById('regionFilterBtn');
+            if (value === 'all') {
+                btn.classList.remove('has-selection');
+                btn.innerHTML = 'Region <span>▼</span>';
+            } else {
+                btn.classList.add('has-selection');
+                btn.innerHTML = value + ' <span>▼</span>';
+            }
+            
+            applyFilters();
+            document.getElementById('regionDropdown').classList.remove('show');
+        }
+
+        // Select forecast filter
+        function selectForecast(value) {
+            currentFilters.forecast = value;
+            
+            // Update active state in dropdown
+            const items = document.querySelectorAll('#forecastDropdown .dropdown-item');
+            items.forEach(item => {
+                if (item.getAttribute('data-value') === value) {
+                    item.classList.add('active');
+                    item.innerHTML = item.textContent.replace(' ✓', '') + ' <span class="checkmark">✓</span>';
+                } else {
+                    item.classList.remove('active');
+                    item.innerHTML = item.textContent.replace(' ✓', '');
+                }
+            });
+            
+            // Update button appearance
+            const btn = document.getElementById('forecastFilterBtn');
+            if (value === 'all') {
+                btn.classList.remove('has-selection');
+                btn.innerHTML = 'Forecast <span>▼</span>';
+            } else {
+                btn.classList.add('has-selection');
+                btn.innerHTML = value + ' <span>▼</span>';
+            }
+            
+            applyFilters();
+            document.getElementById('forecastDropdown').classList.remove('show');
+        }
+
+        // Search projects
+        function searchProjects() {
+            currentFilters.search = document.getElementById('searchInput').value.toLowerCase();
+            applyFilters();
+        }
+
+        // Apply all filters
+        function applyFilters() {
+            const rows = document.querySelectorAll('.data-table tbody tr');
+            
+            rows.forEach(row => {
+                const projectId = parseInt(row.getAttribute('data-id'));
+                const project = projects.find(p => p.id === projectId);
+                
+                if (!project) return;
+                
+                // Check region filter
+                const regionMatch = currentFilters.region === 'all' || project.region === currentFilters.region;
+                
+                // Check forecast filter
+                const forecastMatch = currentFilters.forecast === 'all' || project.forecast === currentFilters.forecast;
+                
+                // Check search filter
+                let searchMatch = true;
+                if (currentFilters.search) {
+                    const searchText = currentFilters.search;
+                    searchMatch = (
+                        project.name.toLowerCase().includes(searchText) ||
+                        project.region.toLowerCase().includes(searchText) ||
+                        project.crmReference.toLowerCase().includes(searchText) ||
+                        project.forecast.toLowerCase().includes(searchText) ||
+                        (project.followUpDate && project.followUpDate.includes(searchText)) ||
+                        (project.airtableLink && project.airtableLink.toLowerCase().includes(searchText))
+                    );
+                }
+                
+                // Show/hide row based on all filters
+                if (regionMatch && forecastMatch && searchMatch) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // "All" button functionality
+        const allButton = document.querySelector('[data-filter="all"]');
+        if (allButton) {
+            allButton.addEventListener('click', function() {
+                // Reset all filters
+                currentFilters = {
+                    region: 'all',
+                    forecast: 'all',
+                    search: ''
+                };
+                
+                // Reset dropdowns
+                selectRegion('all');
+                selectForecast('all');
+                document.getElementById('searchInput').value = '';
+                
+                // Show all rows
+                applyFilters();
+            });
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(unsafe) {
+            if (!unsafe) return '';
+            return unsafe
+                .toString()
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Load sample data
+        function loadSampleData() {
+            projects = [
+                {
+                    id: projectIdCounter++,
+                    name: 'Mining Equipment Upgrade',
+                    region: 'Australia',
+                    crmReference: 'CRM-2025-001',
+                    forecast: 'WON',
+                    followUpDate: '2025-11-20',
+                    airtableLink: 'https://airtable.com/sample1',
+                    costMarginSell: '',
+                    lastUpdate: '',
+                    actions: ''
+                },
+                {
+                    id: projectIdCounter++,
+                    name: 'Safety System Implementation',
+                    region: 'North America',
+                    crmReference: 'CRM-2025-002',
+                    forecast: 'WIV',
+                    followUpDate: '2025-11-15',
+                    airtableLink: 'https://airtable.com/sample2',
+                    costMarginSell: '',
+                    lastUpdate: '',
+                    actions: ''
+                },
+                {
+                    id: projectIdCounter++,
+                    name: 'Infrastructure Development',
+                    region: 'Africa',
+                    crmReference: 'CRM-2025-003',
+                    forecast: 'FWD',
+                    followUpDate: '2025-12-01',
+                    airtableLink: '',
+                    costMarginSell: '',
+                    lastUpdate: '',
+                    actions: ''
+                },
+                {
+                    id: projectIdCounter++,
+                    name: 'Digital Transformation Project',
+                    region: 'India',
+                    crmReference: 'CRM-2025-004',
+                    forecast: 'WIV',
+                    followUpDate: '2025-11-18',
+                    airtableLink: 'https://airtable.com/sample4',
+                    costMarginSell: '',
+                    lastUpdate: '',
+                    actions: ''
+                }
+            ];
+        }
+    </script>
+</body>
+</html>
+

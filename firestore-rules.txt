@@ -1,0 +1,15 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow read/write access to projects collection
+    match /projects/{projectId} {
+      allow read, write: if true;
+    }
+    
+    // Allow read/write access to costings collection
+    match /costings/{costingId} {
+      allow read, write: if true;
+    }
+  }
+}
+

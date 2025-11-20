@@ -1,0 +1,2016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Details - Mechanical Products CRM</title>
+    <link rel="stylesheet" href="dashboard-styles.css">
+    <style>
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 4px 0;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-success) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin: 0;
+            font-weight: 400;
+        }
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 0;
+        }
+
+        .nav-tab {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .nav-tab:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-tab.active {
+            color: var(--accent-success);
+            border-bottom-color: var(--accent-success);
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background-color: var(--bg-elevated);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .back-button:hover {
+            background-color: var(--hover-overlay);
+            color: var(--text-primary);
+        }
+
+        .people-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background-color: var(--bg-elevated);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .people-button:hover {
+            background-color: var(--hover-overlay);
+            color: var(--text-primary);
+        }
+
+        .people-button.has-people {
+            background-color: rgba(168, 85, 247, 0.1);
+            border-color: var(--accent-warning);
+            color: var(--accent-warning);
+        }
+
+        .notes-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background-color: var(--bg-elevated);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .notes-button:hover {
+            background-color: var(--hover-overlay);
+            color: var(--text-primary);
+        }
+
+        .notes-button.has-notes {
+            background-color: rgba(59, 130, 246, 0.1);
+            border-color: var(--accent-info);
+            color: var(--accent-info);
+        }
+
+        /* Project Info Card */
+        .project-info-card {
+            background-color: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+            box-shadow: var(--shadow-md);
+        }
+
+        .project-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-lg);
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            font-size: 16px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* Timeline */
+        .timeline-section {
+            background-color: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-xl);
+            box-shadow: var(--shadow-md);
+            overflow-x: auto;
+        }
+
+        .timeline-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 var(--spacing-xl) 0;
+        }
+
+        .milestone-icon-svg {
+            width: 22px;
+            height: 22px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .timeline {
+            display: flex;
+            flex-direction: row;
+            gap: 0;
+            position: relative;
+            min-width: max-content;
+            padding-bottom: var(--spacing-lg);
+        }
+
+        .timeline-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 0 0 auto;
+            width: 140px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: var(--radius-sm);
+            padding: 10px 8px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .timeline-item:hover {
+            background-color: var(--hover-overlay);
+            transform: translateY(-2px);
+        }
+
+        .timeline-icon-wrapper {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .timeline-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            background-color: var(--bg-elevated);
+            border: 2px solid var(--border-medium);
+            transition: all 0.3s;
+            color: #9ca3af;
+            position: relative;
+        }
+
+        /* Warning indicator for hazard statuses */
+        .timeline-item.not-received .timeline-icon::after,
+        .timeline-item.roadblocks .timeline-icon::after {
+            content: '!';
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 16px;
+            height: 16px;
+            background-color: var(--accent-error);
+            color: white;
+            border-radius: 50%;
+            font-size: 11px;
+            font-weight: bold;
+            border: 2px solid var(--bg-card);
+            line-height: 12px;
+            text-align: center;
+        }
+
+        /* Under Revision indicator */
+        .timeline-item.under-revision .timeline-icon::after {
+            content: '⟳';
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 22px;
+            height: 22px;
+            background-color: #f59e0b;
+            color: white;
+            border-radius: 50%;
+            font-size: 14px;
+            font-weight: bold;
+            border: 2px solid var(--bg-card);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: spin 3s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Green statuses */
+        .timeline-item.received .timeline-icon,
+        .timeline-item.completed .timeline-icon,
+        .timeline-item.signed-off .timeline-icon,
+        .timeline-item.not-required .timeline-icon {
+            background-color: rgba(74, 222, 128, 0.15);
+            border-color: var(--accent-success);
+            color: var(--accent-success);
+        }
+
+        /* Yellow/Orange statuses */
+        .timeline-item.in-progress .timeline-icon,
+        .timeline-item.pending .timeline-icon,
+        .timeline-item.under-revision .timeline-icon {
+            background-color: rgba(251, 191, 36, 0.15);
+            border-color: var(--accent-warning);
+            color: var(--accent-warning);
+            animation: pulse 2s infinite;
+        }
+
+        /* Blue statuses */
+        .timeline-item.quotes-received .timeline-icon,
+        .timeline-item[data-stage="drawings"].completed .timeline-icon,
+        .timeline-item[data-stage="po"].completed .timeline-icon {
+            background-color: rgba(59, 130, 246, 0.15);
+            border-color: var(--accent-info);
+            color: var(--accent-info);
+        }
+
+        /* Yellow/Warning statuses with hazard */
+        .timeline-item.not-received .timeline-icon,
+        .timeline-item.roadblocks .timeline-icon {
+            background-color: rgba(251, 191, 36, 0.15);
+            border-color: var(--accent-warning);
+            color: var(--accent-warning);
+        }
+
+        /* Grey statuses */
+        .timeline-item.not-started .timeline-icon {
+            background-color: var(--bg-elevated);
+            border-color: var(--border-medium);
+            color: #9ca3af;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 0 10px rgba(251, 191, 36, 0);
+            }
+        }
+
+        .timeline-connector {
+            position: absolute;
+            top: 42px;
+            left: 100%;
+            width: 140px;
+            height: 2px;
+            background: linear-gradient(to right, var(--border-medium) 0%, var(--border-medium) 100%);
+            z-index: 1;
+        }
+
+        .timeline-item:last-child .timeline-connector {
+            display: none;
+        }
+
+        /* Green status connectors */
+        .timeline-item.received .timeline-connector,
+        .timeline-item.completed .timeline-connector,
+        .timeline-item.signed-off .timeline-connector,
+        .timeline-item.not-required .timeline-connector {
+            background: linear-gradient(to right, var(--accent-success) 0%, var(--border-medium) 100%);
+        }
+
+        /* Yellow/Orange status connectors */
+        .timeline-item.in-progress .timeline-connector,
+        .timeline-item.pending .timeline-connector,
+        .timeline-item.under-revision .timeline-connector {
+            background: linear-gradient(to right, var(--accent-warning) 0%, var(--border-medium) 100%);
+        }
+
+        /* Blue status connectors */
+        .timeline-item.quotes-received .timeline-connector,
+        .timeline-item[data-stage="drawings"].completed .timeline-connector,
+        .timeline-item[data-stage="po"].completed .timeline-connector {
+            background: linear-gradient(to right, var(--accent-info) 0%, var(--border-medium) 100%);
+        }
+
+        /* Yellow/Warning status connectors */
+        .timeline-item.not-received .timeline-connector,
+        .timeline-item.roadblocks .timeline-connector {
+            background: linear-gradient(to right, var(--accent-warning) 0%, var(--border-medium) 100%);
+        }
+
+        .timeline-content {
+            text-align: center;
+            width: 100%;
+        }
+
+        .timeline-stage {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .timeline-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 10px;
+            color: var(--text-tertiary);
+            margin-bottom: 8px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        /* Green status badges */
+        .status-badge.received,
+        .status-badge.completed,
+        .status-badge.signed-off,
+        .status-badge.not-required {
+            background-color: rgba(74, 222, 128, 0.15);
+            color: var(--accent-success);
+        }
+
+        /* Yellow/Orange status badges */
+        .status-badge.in-progress,
+        .status-badge.pending,
+        .status-badge.under-revision {
+            background-color: rgba(251, 191, 36, 0.15);
+            color: var(--accent-warning);
+        }
+
+        /* Blue status badges */
+        .status-badge.quotes-received,
+        .timeline-item[data-stage="drawings"] .status-badge.completed,
+        .timeline-item[data-stage="po"] .status-badge.completed {
+            background-color: rgba(59, 130, 246, 0.15);
+            color: var(--accent-info);
+        }
+
+        /* Yellow/Warning status badges */
+        .status-badge.not-received,
+        .status-badge.roadblocks {
+            background-color: rgba(251, 191, 36, 0.15);
+            color: var(--accent-warning);
+        }
+
+        /* Grey status badges */
+        .status-badge.not-started {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-tertiary);
+        }
+
+        .timeline-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 100%;
+        }
+
+        /* Overview Grid */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-lg);
+            margin-top: var(--spacing-xl);
+        }
+
+        .overview-section {
+            background-color: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-xl);
+            box-shadow: var(--shadow-md);
+        }
+
+        .overview-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 var(--spacing-lg) 0;
+        }
+
+        .overview-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .overview-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .overview-list::-webkit-scrollbar-track {
+            background: var(--bg-elevated);
+            border-radius: 3px;
+        }
+
+        .overview-list::-webkit-scrollbar-thumb {
+            background: var(--border-strong);
+            border-radius: 3px;
+        }
+
+        .overview-list::-webkit-scrollbar-thumb:hover {
+            background: var(--text-tertiary);
+        }
+
+        .overview-item {
+            padding: 10px 12px;
+            background-color: var(--bg-elevated);
+            border-left: 3px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+        }
+
+        .overview-item.status-completed,
+        .overview-item.status-received,
+        .overview-item.status-signed-off,
+        .overview-item.status-not-required {
+            border-left-color: var(--accent-success);
+        }
+
+        .overview-item.status-in-progress,
+        .overview-item.status-pending,
+        .overview-item.status-under-revision,
+        .overview-item.status-not-received,
+        .overview-item.status-roadblocks {
+            border-left-color: var(--accent-warning);
+        }
+
+        .overview-item.status-quotes-received {
+            border-left-color: var(--accent-info);
+        }
+
+        .overview-item.status-not-started {
+            border-left-color: var(--text-tertiary);
+        }
+
+        .overview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .milestone-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background-color: rgba(74, 222, 128, 0.15);
+            color: var(--accent-success);
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .overview-date {
+            font-size: 10px;
+            color: var(--text-tertiary);
+        }
+
+        .overview-content {
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .todo-overview-item {
+            padding: 8px 12px;
+            background-color: var(--bg-elevated);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+        }
+
+        .todo-overview-item.completed {
+            opacity: 0.6;
+        }
+
+        .todo-overview-checkbox {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            pointer-events: none;
+        }
+
+        .todo-overview-text {
+            flex: 1;
+            color: var(--text-primary);
+            min-width: 0;
+        }
+
+        .todo-overview-item.completed .todo-overview-text {
+            text-decoration: line-through;
+            color: var(--text-tertiary);
+        }
+
+        .todo-overview-initials {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background-color: var(--accent-success);
+            color: white;
+            border-radius: 50%;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+
+        .overview-empty {
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--text-tertiary);
+            font-size: 13px;
+        }
+
+        /* Navigation Row */
+        .nav-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        /* Equipment Breakdown - Compact */
+        .equipment-breakdown {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            background-color: var(--bg-card);
+            padding: 10px 16px;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-md);
+        }
+
+        .breakdown-label {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .metric-selector {
+            display: flex;
+            gap: 2px;
+            background-color: var(--bg-elevated);
+            padding: 2px;
+            border-radius: var(--radius-sm);
+        }
+
+        .metric-btn {
+            padding: 4px 10px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: all 0.2s;
+        }
+
+        .metric-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .metric-btn.active {
+            background-color: var(--accent-success);
+            color: white;
+        }
+
+        .breakdown-content {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .breakdown-item {
+            display: inline-flex;
+            flex-direction: column;
+            gap: 2px;
+            font-size: 13px;
+        }
+
+        .breakdown-type {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .breakdown-percent {
+            color: var(--accent-success);
+            font-weight: 700;
+        }
+
+        .breakdown-amount {
+            color: var(--text-secondary);
+            font-size: 11px;
+        }
+
+        .breakdown-separator {
+            color: var(--text-tertiary);
+            font-size: 14px;
+            margin: 0 2px;
+        }
+
+        .breakdown-empty {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        @media (max-width: 1024px) {
+            .overview-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .equipment-breakdown {
+                flex-wrap: wrap;
+            }
+        }
+
+        .action-btn {
+            padding: 5px 8px;
+            background-color: var(--bg-elevated);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .action-btn:hover {
+            background-color: var(--hover-overlay);
+            color: var(--text-primary);
+        }
+
+        .action-btn.primary {
+            background-color: var(--accent-success);
+            border-color: var(--accent-success);
+            color: white;
+        }
+
+        .action-btn.primary:hover {
+            background-color: var(--accent-success-dark);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .stat-card {
+            background-color: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* People Modal */
+        .people-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .people-modal.active {
+            display: flex;
+        }
+
+        .people-modal-content {
+            background-color: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-xl);
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .people-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .people-modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .people-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s;
+        }
+
+        .people-close:hover {
+            background-color: var(--hover-overlay);
+            color: var(--text-primary);
+        }
+
+        .people-section {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .people-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-sm);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 12px;
+        }
+
+        .people-input-row {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .people-input {
+            flex: 1;
+            padding: 10px 12px;
+            background-color: var(--bg-elevated);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .people-input:focus {
+            outline: none;
+            border-color: var(--accent-warning);
+            background-color: var(--bg-card);
+        }
+
+        .people-input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .people-add-btn {
+            padding: 10px 20px;
+            background-color: var(--accent-success);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .people-add-btn:hover {
+            background-color: var(--accent-success-dark);
+        }
+
+        .people-add-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .people-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            margin-top: var(--spacing-sm);
+        }
+
+        .person-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            background-color: var(--bg-card);
+            border-bottom: 1px solid var(--border-subtle);
+            font-size: 13px;
+            color: var(--text-primary);
+            transition: background-color 0.2s;
+        }
+
+        .person-item:last-child {
+            border-bottom: none;
+        }
+
+        .person-item:hover {
+            background-color: var(--bg-elevated);
+        }
+
+        .person-remove {
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            font-size: 16px;
+            padding: 0 4px;
+            transition: all 0.2s;
+        }
+
+        .person-remove:hover {
+            color: var(--accent-error);
+        }
+
+        .people-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-lg);
+        }
+
+        .people-save-btn {
+            padding: 10px 20px;
+            background-color: var(--accent-success);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .people-save-btn:hover {
+            background-color: var(--accent-success-dark);
+        }
+
+        .people-empty {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            font-style: italic;
+            padding: 16px 12px;
+            text-align: center;
+            background-color: var(--bg-card);
+        }
+
+        /* Notes Modal */
+        .notes-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .notes-modal.active {
+            display: flex;
+        }
+
+        .notes-modal-content {
+            background-color: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-xl);
+            max-width: 700px;
+            width: 100%;
+            max-height: 80vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .notes-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .notes-modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .notes-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s;
+        }
+
+        .notes-close:hover {
+            background-color: var(--hover-overlay);
+            color: var(--text-primary);
+        }
+
+        .notes-textarea {
+            width: 100%;
+            min-height: 400px;
+            padding: var(--spacing-md);
+            background-color: var(--bg-elevated);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            resize: vertical;
+            transition: all 0.2s;
+        }
+
+        .notes-textarea:focus {
+            outline: none;
+            border-color: var(--accent-info);
+            background-color: var(--bg-card);
+        }
+
+        .notes-textarea::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .notes-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-md);
+        }
+
+        .notes-save-btn {
+            padding: 10px 20px;
+            background-color: var(--accent-success);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .notes-save-btn:hover {
+            background-color: var(--accent-success-dark);
+        }
+
+        .notes-cancel-btn {
+            padding: 10px 20px;
+            background-color: var(--bg-elevated);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .notes-cancel-btn:hover {
+            background-color: var(--hover-overlay);
+            color: var(--text-primary);
+        }
+
+        .notes-info {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: var(--spacing-sm);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container" style="padding: 24px; max-width: 1400px; margin: 0 auto;">
+        
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title" id="pageTitle">Loading...</h1>
+            <p class="page-subtitle">Project timeline and management</p>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <a href="index.html" class="nav-tab">Projects</a>
+            <a href="equipment-catalogue.html" class="nav-tab">Equipment Catalogue</a>
+            <a href="analytics.html" class="nav-tab">Analytics</a>
+        </div>
+
+        <!-- Navigation Row -->
+        <div class="nav-row">
+            <div style="display: flex; gap: var(--spacing-sm);">
+                <a href="index.html" class="back-button" style="margin-bottom: 0;">
+                    <span>←</span> Back to Projects
+                </a>
+                <button class="people-button" id="peopleButton" onclick="openPeopleModal()">
+                    👥 People
+                </button>
+                <button class="notes-button" id="notesButton" onclick="openNotesModal()">
+                    📝 Notes
+                </button>
+            </div>
+
+            <!-- Equipment Breakdown -->
+            <div class="equipment-breakdown">
+                <span class="breakdown-label">Equipment:</span>
+                <div class="metric-selector">
+                    <button class="metric-btn active" id="costMetric" onclick="selectMetric('cost')">Cost</button>
+                    <button class="metric-btn" id="revenueMetric" onclick="selectMetric('revenue')">Revenue</button>
+                    <button class="metric-btn" id="marginMetric" onclick="selectMetric('margin')">Margin</button>
+                </div>
+                <div class="breakdown-content" id="breakdownContent">
+                    <span class="breakdown-empty">No data</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Project Info Card -->
+        <div class="project-info-card">
+            <div class="project-info-grid">
+                <div class="info-item">
+                    <div class="info-label">Project Name</div>
+                    <div class="info-value" id="projectName">Loading...</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Region</div>
+                    <div class="info-value" id="projectRegion">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">CRM Reference</div>
+                    <div class="info-value" id="projectCRM">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Forecast</div>
+                    <div class="info-value" id="projectForecast">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Next Follow-up</div>
+                    <div class="info-value" id="projectFollowUp">-</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline Section -->
+        <div class="timeline-section">
+            <h2 class="timeline-title">Project Milestones</h2>
+            <div class="timeline" id="timeline">
+                <!-- Timeline items will be dynamically added -->
+            </div>
+        </div>
+
+        <!-- Overview Grid -->
+        <div class="overview-grid">
+            <!-- Update History Overview -->
+            <div class="overview-section">
+                <h2 class="overview-title">Recent Updates</h2>
+                <div class="overview-list" id="overviewHistory">
+                    <div class="overview-empty">No updates yet</div>
+                </div>
+            </div>
+
+            <!-- To-Do Overview -->
+            <div class="overview-section">
+                <h2 class="overview-title">Active Tasks</h2>
+                <div class="overview-list" id="overviewTodos">
+                    <div class="overview-empty">No tasks yet</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- People Modal -->
+    <div class="people-modal" id="peopleModal" onclick="closePeopleModalOnBackdrop(event)">
+        <div class="people-modal-content" onclick="event.stopPropagation()">
+            <div class="people-modal-header">
+                <div class="people-modal-title">👥 Relevant People</div>
+                <button class="people-close" onclick="closePeopleModal()">✕</button>
+            </div>
+
+            <!-- Sales Team Section -->
+            <div class="people-section">
+                <div class="people-section-title">Sales Team</div>
+                <div class="people-input-row">
+                    <input 
+                        type="text" 
+                        id="salesPersonInput" 
+                        class="people-input" 
+                        placeholder="Enter name"
+                        onkeypress="handleSalesPersonKeyPress(event)">
+                    <button class="people-add-btn" onclick="addSalesPerson()">Add</button>
+                </div>
+                <div class="people-list" id="salesPeopleList">
+                    <div class="people-empty">No sales people added</div>
+                </div>
+            </div>
+
+            <!-- Customer Stakeholders Section -->
+            <div class="people-section">
+                <div class="people-section-title">Customer Stakeholders</div>
+                <div class="people-input-row">
+                    <input 
+                        type="text" 
+                        id="stakeholderInput" 
+                        class="people-input" 
+                        placeholder="Enter name"
+                        onkeypress="handleStakeholderKeyPress(event)">
+                    <button class="people-add-btn" onclick="addStakeholder()">Add</button>
+                </div>
+                <div class="people-list" id="stakeholdersList">
+                    <div class="people-empty">No stakeholders added</div>
+                </div>
+            </div>
+
+            <div class="people-actions">
+                <button class="people-save-btn" onclick="closePeopleModal()">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notes Modal -->
+    <div class="notes-modal" id="notesModal" onclick="closeNotesModalOnBackdrop(event)">
+        <div class="notes-modal-content" onclick="event.stopPropagation()">
+            <div class="notes-modal-header">
+                <div class="notes-modal-title">📝 Project Notes</div>
+                <button class="notes-close" onclick="closeNotesModal()">✕</button>
+            </div>
+
+            <textarea 
+                id="notesTextarea" 
+                class="notes-textarea" 
+                placeholder="Write your thoughts, ideas, and notes for this project...&#10;&#10;These notes are saved when you click Save."></textarea>
+
+            <div class="notes-info">
+                Last saved: <span id="lastSavedTime">Never</span>
+            </div>
+
+            <div class="notes-actions">
+                <button class="notes-cancel-btn" onclick="closeNotesModal()">Cancel</button>
+                <button class="notes-save-btn" onclick="saveNotes()">Save Notes</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return String(text).replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Status options for each milestone
+        const milestoneStatusOptions = {
+            'rfq': [
+                { value: 'not-received', label: 'Not Received' },
+                { value: 'under-revision', label: 'Under Revision' },
+                { value: 'received', label: 'Received' }
+            ],
+            'docs': [
+                { value: 'not-received', label: 'Not Received' },
+                { value: 'under-revision', label: 'Under Revision' },
+                { value: 'received', label: 'Received' }
+            ],
+            'sizing': [
+                { value: 'not-started', label: 'Not Started' },
+                { value: 'pending', label: 'Pending' },
+                { value: 'under-revision', label: 'Under Revision' },
+                { value: 'completed', label: 'Completed' }
+            ],
+            'drawings': [
+                { value: 'not-started', label: 'Not Started' },
+                { value: 'in-progress', label: 'In Progress' },
+                { value: 'under-revision', label: 'Under Revision' },
+                { value: 'completed', label: 'Completed' },
+                { value: 'signed-off', label: 'Signed Off' }
+            ],
+            'costing': [
+                { value: 'not-started', label: 'Not Started' },
+                { value: 'quotes-received', label: 'Quotes Received' },
+                { value: 'under-revision', label: 'Under Revision' },
+                { value: 'completed', label: 'Completed' }
+            ],
+            'clarifications': [
+                { value: 'not-started', label: 'Not Started' },
+                { value: 'not-required', label: 'Not Required' },
+                { value: 'under-revision', label: 'Under Revision' },
+                { value: 'completed', label: 'Completed' },
+                { value: 'roadblocks', label: 'Roadblocks' }
+            ],
+            'proposal': [
+                { value: 'not-started', label: 'Not Started' },
+                { value: 'not-required', label: 'Not Required' },
+                { value: 'under-revision', label: 'Under Revision' },
+                { value: 'completed', label: 'Completed' },
+                { value: 'roadblocks', label: 'Roadblocks' }
+            ],
+            'po': [
+                { value: 'not-started', label: 'Not Started' },
+                { value: 'in-progress', label: 'In Progress' },
+                { value: 'under-revision', label: 'Under Revision' },
+                { value: 'completed', label: 'Completed' },
+                { value: 'signed-off', label: 'Signed Off' }
+            ],
+            'contract': [
+                { value: 'not-started', label: 'Not Started' },
+                { value: 'in-progress', label: 'In Progress' },
+                { value: 'under-revision', label: 'Under Revision' },
+                { value: 'completed', label: 'Completed' }
+            ],
+            'execution': [
+                { value: 'not-started', label: 'Not Started' },
+                { value: 'in-progress', label: 'In Progress' },
+                { value: 'on-track', label: 'On Track' },
+                { value: 'at-risk', label: 'At Risk' },
+                { value: 'delayed', label: 'Delayed' },
+                { value: 'completed', label: 'Completed' }
+            ]
+        };
+
+        // Timeline stages configuration with professional SVG icons
+        const timelineStages = [
+            { 
+                id: 'rfq', 
+                name: 'RFQ', 
+                icon: '<svg class="milestone-icon-svg" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="7" y1="9" x2="17" y2="9"/><line x1="7" y1="13" x2="17" y2="13"/><line x1="7" y1="17" x2="13" y2="17"/></svg>'
+            },
+            { 
+                id: 'docs', 
+                name: 'Project Docs', 
+                icon: '<svg class="milestone-icon-svg" viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>'
+            },
+            { 
+                id: 'sizing', 
+                name: 'Equipment Sizing', 
+                icon: '<svg class="milestone-icon-svg" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>'
+            },
+            { 
+                id: 'drawings', 
+                name: 'Drawings', 
+                icon: '<svg class="milestone-icon-svg" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/><path d="M3 3l3 3M21 3l-3 3M3 21l3-3M21 21l-3-3"/></svg>'
+            },
+            { 
+                id: 'costing', 
+                name: 'Costing Sheet', 
+                icon: '<svg class="milestone-icon-svg" viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>'
+            },
+            { 
+                id: 'clarifications', 
+                name: 'Clarifications', 
+                icon: '<svg class="milestone-icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
+            },
+            { 
+                id: 'proposal', 
+                name: 'Proposal', 
+                icon: '<svg class="milestone-icon-svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>'
+            },
+            { 
+                id: 'po', 
+                name: 'Purchase Order', 
+                icon: '<svg class="milestone-icon-svg" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>'
+            },
+            { 
+                id: 'contract', 
+                name: 'Contract', 
+                icon: '<svg class="milestone-icon-svg" viewBox="0 0 24 24"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>'
+            },
+            { 
+                id: 'execution', 
+                name: 'Project Execution', 
+                icon: '<svg class="milestone-icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'
+            }
+        ];
+
+        // Get project ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const projectId = urlParams.get('id');
+
+        // Current metric for equipment breakdown
+        let currentMetric = 'cost';
+
+        // Load project data
+        function loadProject() {
+            // Get projects from localStorage
+            const projectsData = localStorage.getItem('crmProjects');
+            
+            if (!projectsData) {
+                alert('No project data found');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const projects = JSON.parse(projectsData);
+            const project = projects.find(p => p.id == projectId);
+
+            if (!project) {
+                alert('Project not found');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Display project info
+            document.getElementById('pageTitle').textContent = project.name;
+            document.getElementById('projectName').textContent = project.name;
+            document.getElementById('projectRegion').textContent = project.region;
+            document.getElementById('projectCRM').textContent = project.crmReference;
+            document.getElementById('projectForecast').textContent = project.forecast;
+            document.getElementById('projectFollowUp').textContent = project.followUpDate || 'Not set';
+
+            // Update page title
+            document.title = `${project.name} - Project Details`;
+
+            // Load timeline
+            loadTimeline(project);
+
+            // Load overview data
+            loadOverviewHistory(project);
+            loadOverviewTodos(project);
+            loadEquipmentBreakdown(project);
+        }
+
+        // Select metric for equipment breakdown
+        function selectMetric(metric) {
+            currentMetric = metric;
+            
+            // Update button states
+            document.querySelectorAll('.metric-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(metric + 'Metric').classList.add('active');
+            
+            // Reload breakdown
+            const projectsData = localStorage.getItem('crmProjects');
+            const projects = JSON.parse(projectsData);
+            const project = projects.find(p => p.id == projectId);
+            if (project) {
+                loadEquipmentBreakdown(project);
+            }
+        }
+
+        // Load equipment breakdown by type
+        function loadEquipmentBreakdown(project) {
+            const breakdownContent = document.getElementById('breakdownContent');
+            
+            // Load costing sheet data
+            const costingKey = `costing_${project.id}_costing`;
+            const saved = localStorage.getItem(costingKey);
+            
+            if (!saved) {
+                breakdownContent.innerHTML = '<span class="breakdown-empty">No data</span>';
+                return;
+            }
+
+            try {
+                const data = JSON.parse(saved);
+                const lineItems = data.lineItems || [];
+                const discountPercent = data.discount || 0;
+                
+                if (lineItems.length === 0) {
+                    breakdownContent.innerHTML = '<span class="breakdown-empty">No items</span>';
+                    return;
+                }
+
+                // Group by equipment type and calculate metrics
+                const typeMetrics = {};
+                let totalCostSum = 0;
+                let totalRevenueBeforeDiscount = 0;
+
+                lineItems.forEach(item => {
+                    const type = item.equipmentType || 'Other';
+                    const cost = parseFloat(item.cost.replace(/[$,]/g, '')) || 0;
+                    const margin = parseFloat(item.margin) || 0;
+                    const qty = parseFloat(item.quantity) || 1;
+                    // Sell Price = Cost / (1 - Margin%)
+                    const marginDecimal = margin / 100;
+                    const unitPrice = marginDecimal >= 1 ? cost : cost / (1 - marginDecimal);
+                    const revenueBeforeDiscount = unitPrice * qty;
+
+                    if (!typeMetrics[type]) {
+                        typeMetrics[type] = {
+                            cost: 0,
+                            revenueBeforeDiscount: 0
+                        };
+                    }
+
+                    typeMetrics[type].cost += cost * qty;
+                    typeMetrics[type].revenueBeforeDiscount += revenueBeforeDiscount;
+                    totalCostSum += cost * qty;
+                    totalRevenueBeforeDiscount += revenueBeforeDiscount;
+                });
+
+                // Apply discount proportionally and calculate final metrics
+                Object.keys(typeMetrics).forEach(type => {
+                    const metrics = typeMetrics[type];
+                    // Apply discount proportionally
+                    const discountAmount = metrics.revenueBeforeDiscount * (discountPercent / 100);
+                    metrics.revenue = metrics.revenueBeforeDiscount - discountAmount;
+                    metrics.margin = metrics.revenue - metrics.cost;
+                });
+
+                // Calculate total for selected metric
+                let totalMetric = 0;
+                Object.values(typeMetrics).forEach(metrics => {
+                    totalMetric += metrics[currentMetric];
+                });
+
+                if (totalMetric === 0) {
+                    breakdownContent.innerHTML = '<span class="breakdown-empty">No data</span>';
+                    return;
+                }
+
+                // Sort by metric value (highest first)
+                const sortedTypes = Object.entries(typeMetrics)
+                    .sort((a, b) => b[1][currentMetric] - a[1][currentMetric]);
+
+                // Format currency
+                const formatCurrency = (num) => {
+                    return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+                };
+
+                // Build display
+                const items = sortedTypes.map(([type, metrics], index) => {
+                    const percent = (metrics[currentMetric] / totalMetric * 100).toFixed(0);
+                    const amount = formatCurrency(metrics[currentMetric]);
+                    return `
+                        <div class="breakdown-item">
+                            <div>
+                                <span class="breakdown-type">${type}</span> 
+                                <span class="breakdown-percent">${percent}%</span>
+                            </div>
+                            <span class="breakdown-amount">${amount}</span>
+                        </div>
+                        ${index < sortedTypes.length - 1 ? '<span class="breakdown-separator">//</span>' : ''}
+                    `;
+                }).join('');
+
+                breakdownContent.innerHTML = items;
+
+            } catch (e) {
+                console.error('Error loading equipment breakdown:', e);
+                breakdownContent.innerHTML = '<span class="breakdown-empty">Error</span>';
+            }
+        }
+
+        // Load overview history from all milestones
+        function loadOverviewHistory(project) {
+            const historyContainer = document.getElementById('overviewHistory');
+            const allHistory = [];
+
+            // Collect history from all milestones
+            timelineStages.forEach(stage => {
+                const historyKey = `milestone_${project.id}_${stage.id}_history`;
+                const history = JSON.parse(localStorage.getItem(historyKey) || '[]');
+                
+                history.forEach(item => {
+                    allHistory.push({
+                        ...item,
+                        milestone: stage.name,
+                        milestoneId: stage.id
+                    });
+                });
+            });
+
+            // Sort by timestamp (most recent first)
+            allHistory.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            if (allHistory.length === 0) {
+                historyContainer.innerHTML = '<div class="overview-empty">No updates yet</div>';
+                return;
+            }
+
+            // Show only the most recent 10
+            const recentHistory = allHistory.slice(0, 10);
+
+            historyContainer.innerHTML = recentHistory.map(item => {
+                const statusOptions = milestoneStatusOptions[item.milestoneId] || [];
+                const statusOption = statusOptions.find(opt => opt.value === item.status);
+                const statusLabel = statusOption ? statusOption.label : item.status;
+
+                return `
+                    <div class="overview-item status-${item.status}">
+                        <div class="overview-header">
+                            <span class="milestone-badge">${item.milestone}</span>
+                            <span class="overview-date">${new Date(item.timestamp).toLocaleDateString()}</span>
+                        </div>
+                        <div class="overview-content">
+                            <strong>Status:</strong> ${statusLabel}
+                            ${item.comment ? `<br>${item.comment}` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Load overview todos from all milestones
+        function loadOverviewTodos(project) {
+            const todosContainer = document.getElementById('overviewTodos');
+            const allTodos = [];
+
+            // Collect todos from all milestones
+            timelineStages.forEach(stage => {
+                const todosKey = `milestone_${project.id}_${stage.id}_todos`;
+                const todos = JSON.parse(localStorage.getItem(todosKey) || '[]');
+                
+                todos.forEach(item => {
+                    allTodos.push({
+                        ...item,
+                        milestone: stage.name,
+                        milestoneId: stage.id
+                    });
+                });
+            });
+
+            // Show incomplete first, then completed
+            allTodos.sort((a, b) => {
+                if (a.completed !== b.completed) {
+                    return a.completed ? 1 : -1;
+                }
+                return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+            });
+
+            if (allTodos.length === 0) {
+                todosContainer.innerHTML = '<div class="overview-empty">No tasks yet</div>';
+                return;
+            }
+
+            // Show all todos (or limit to 20)
+            const displayTodos = allTodos.slice(0, 20);
+
+            todosContainer.innerHTML = displayTodos.map(item => `
+                <div class="todo-overview-item ${item.completed ? 'completed' : ''}">
+                    <input type="checkbox" class="todo-overview-checkbox" ${item.completed ? 'checked' : ''} disabled>
+                    <span class="todo-overview-text">${item.text}</span>
+                    ${item.initials ? `<span class="todo-overview-initials">${item.initials}</span>` : ''}
+                    <span class="milestone-badge">${item.milestone}</span>
+                </div>
+            `).join('');
+        }
+
+        // Load timeline with project-specific data
+        function loadTimeline(project) {
+            const timeline = document.getElementById('timeline');
+            
+            // Get or initialize timeline status from localStorage
+            const timelineKey = `project_${project.id}_timeline`;
+            let timelineStatus = JSON.parse(localStorage.getItem(timelineKey) || '{}');
+
+            timeline.innerHTML = timelineStages.map((stage, index) => {
+                const statusOptions = milestoneStatusOptions[stage.id] || milestoneStatusOptions['contract'];
+                const defaultStatus = statusOptions[0].value;
+                const status = timelineStatus[stage.id] || defaultStatus;
+                const statusOption = statusOptions.find(opt => opt.value === status);
+                const statusLabel = statusOption ? statusOption.label : status;
+                
+                return `
+                    <a href="milestone-detail.html?projectId=${project.id}&milestoneId=${stage.id}" class="timeline-item ${status}" data-stage="${stage.id}">
+                        <div class="timeline-icon-wrapper">
+                            <div class="timeline-icon">${stage.icon}</div>
+                            ${index < timelineStages.length - 1 ? '<div class="timeline-connector"></div>' : ''}
+                        </div>
+                        <div class="timeline-content">
+                            <div class="timeline-stage">${stage.name}</div>
+                            <div class="timeline-meta">
+                                <span class="status-badge ${status}">${statusLabel}</span>
+                            </div>
+                        </div>
+                    </a>
+                `;
+            }).join('');
+        }
+
+        // ===== PEOPLE FUNCTIONALITY =====
+        
+        let salesPeople = [];
+        let stakeholders = [];
+
+        // Open people modal
+        function openPeopleModal() {
+            const modal = document.getElementById('peopleModal');
+            loadPeople();
+            renderPeople();
+            modal.classList.add('active');
+        }
+
+        // Close people modal
+        function closePeopleModal() {
+            const modal = document.getElementById('peopleModal');
+            modal.classList.remove('active');
+            savePeople();
+        }
+
+        // Close people modal when clicking backdrop
+        function closePeopleModalOnBackdrop(event) {
+            if (event.target.id === 'peopleModal') {
+                closePeopleModal();
+            }
+        }
+
+        // Load people from localStorage
+        function loadPeople() {
+            const peopleKey = `project_${projectId}_people`;
+            const saved = localStorage.getItem(peopleKey);
+            
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    salesPeople = data.salesPeople || [];
+                    stakeholders = data.stakeholders || [];
+                    updatePeopleButtonIndicator();
+                } catch (e) {
+                    console.error('Error loading people:', e);
+                    salesPeople = [];
+                    stakeholders = [];
+                }
+            } else {
+                salesPeople = [];
+                stakeholders = [];
+            }
+        }
+
+        // Save people to localStorage
+        function savePeople() {
+            const peopleKey = `project_${projectId}_people`;
+            const data = {
+                salesPeople: salesPeople,
+                stakeholders: stakeholders
+            };
+            localStorage.setItem(peopleKey, JSON.stringify(data));
+            updatePeopleButtonIndicator();
+        }
+
+        // Update people button indicator
+        function updatePeopleButtonIndicator() {
+            const button = document.getElementById('peopleButton');
+            if ((salesPeople && salesPeople.length > 0) || (stakeholders && stakeholders.length > 0)) {
+                button.classList.add('has-people');
+            } else {
+                button.classList.remove('has-people');
+            }
+        }
+
+        // Add sales person
+        function addSalesPerson() {
+            const input = document.getElementById('salesPersonInput');
+            const name = input.value.trim();
+            if (name) {
+                salesPeople.push(name);
+                input.value = '';
+                renderPeople();
+                savePeople();
+                input.focus();
+            }
+        }
+
+        // Add stakeholder
+        function addStakeholder() {
+            const input = document.getElementById('stakeholderInput');
+            const name = input.value.trim();
+            if (name) {
+                stakeholders.push(name);
+                input.value = '';
+                renderPeople();
+                savePeople();
+                input.focus();
+            }
+        }
+
+        // Handle sales person key press
+        function handleSalesPersonKeyPress(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                addSalesPerson();
+            }
+        }
+
+        // Handle stakeholder key press
+        function handleStakeholderKeyPress(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                addStakeholder();
+            }
+        }
+
+        // Remove sales person
+        function removeSalesPerson(index) {
+            salesPeople.splice(index, 1);
+            renderPeople();
+            savePeople();
+        }
+
+        // Remove stakeholder
+        function removeStakeholder(index) {
+            stakeholders.splice(index, 1);
+            renderPeople();
+            savePeople();
+        }
+
+        // Render people lists
+        function renderPeople() {
+            const salesList = document.getElementById('salesPeopleList');
+            const stakeholdersList = document.getElementById('stakeholdersList');
+
+            // Render sales people
+            if (salesPeople.length === 0) {
+                salesList.innerHTML = '<div class="people-empty">No sales people added</div>';
+            } else {
+                salesList.innerHTML = salesPeople.map((name, index) => `
+                    <div class="person-item">
+                        <span>${escapeHtml(name)}</span>
+                        <button class="person-remove" onclick="removeSalesPerson(${index})">✕</button>
+                    </div>
+                `).join('');
+            }
+
+            // Render stakeholders
+            if (stakeholders.length === 0) {
+                stakeholdersList.innerHTML = '<div class="people-empty">No stakeholders added</div>';
+            } else {
+                stakeholdersList.innerHTML = stakeholders.map((name, index) => `
+                    <div class="person-item">
+                        <span>${escapeHtml(name)}</span>
+                        <button class="person-remove" onclick="removeStakeholder(${index})">✕</button>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Close people modal with ESC key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const peopleModal = document.getElementById('peopleModal');
+                const notesModal = document.getElementById('notesModal');
+                
+                if (peopleModal && peopleModal.classList.contains('active')) {
+                    closePeopleModal();
+                } else if (notesModal && notesModal.classList.contains('active')) {
+                    closeNotesModal();
+                }
+            }
+        });
+
+        // ===== NOTES FUNCTIONALITY =====
+        
+        // Open notes modal
+        function openNotesModal() {
+            const modal = document.getElementById('notesModal');
+            const textarea = document.getElementById('notesTextarea');
+            
+            // Load saved notes
+            loadNotes();
+            
+            modal.classList.add('active');
+            
+            // Focus textarea after a short delay to ensure modal is visible
+            setTimeout(() => textarea.focus(), 100);
+        }
+
+        // Close notes modal
+        function closeNotesModal() {
+            const modal = document.getElementById('notesModal');
+            modal.classList.remove('active');
+        }
+
+        // Close notes modal when clicking backdrop
+        function closeNotesModalOnBackdrop(event) {
+            if (event.target.id === 'notesModal') {
+                closeNotesModal();
+            }
+        }
+
+        // Load notes from localStorage
+        function loadNotes() {
+            const notesKey = `project_${projectId}_notes`;
+            const saved = localStorage.getItem(notesKey);
+            
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    document.getElementById('notesTextarea').value = data.content || '';
+                    
+                    if (data.lastSaved) {
+                        const lastSavedTime = new Date(data.lastSaved).toLocaleString();
+                        document.getElementById('lastSavedTime').textContent = lastSavedTime;
+                    }
+                    
+                    // Update button indicator if notes exist
+                    updateNotesButtonIndicator(data.content);
+                } catch (e) {
+                    console.error('Error loading notes:', e);
+                }
+            } else {
+                document.getElementById('notesTextarea').value = '';
+                document.getElementById('lastSavedTime').textContent = 'Never';
+                updateNotesButtonIndicator('');
+            }
+        }
+
+        // Save notes to localStorage
+        function saveNotes() {
+            const notesKey = `project_${projectId}_notes`;
+            const content = document.getElementById('notesTextarea').value;
+            const now = new Date().toISOString();
+            
+            const data = {
+                content: content,
+                lastSaved: now
+            };
+            
+            localStorage.setItem(notesKey, JSON.stringify(data));
+            
+            // Update last saved time
+            const lastSavedTime = new Date(now).toLocaleString();
+            document.getElementById('lastSavedTime').textContent = lastSavedTime;
+            
+            // Update button indicator
+            updateNotesButtonIndicator(content);
+            
+            // Show success feedback
+            const saveBtn = document.querySelector('.notes-save-btn');
+            const originalText = saveBtn.textContent;
+            saveBtn.textContent = '✓ Saved!';
+            saveBtn.style.backgroundColor = 'var(--accent-success-dark)';
+            
+            setTimeout(() => {
+                saveBtn.textContent = originalText;
+                saveBtn.style.backgroundColor = '';
+            }, 1500);
+        }
+
+        // Update notes button indicator
+        function updateNotesButtonIndicator(content) {
+            const button = document.getElementById('notesButton');
+            if (content && content.trim().length > 0) {
+                button.classList.add('has-notes');
+            } else {
+                button.classList.remove('has-notes');
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!projectId) {
+                alert('No project selected');
+                window.location.href = 'index.html';
+                return;
+            }
+            loadProject();
+            loadPeople();
+            loadNotes();
+        });
+    </script>
+</body>
+</html>
+

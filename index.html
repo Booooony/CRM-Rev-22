@@ -1,0 +1,1957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Projects Table</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+    <link rel="stylesheet" href="dashboard-styles.css">
+    <style>
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 4px 0;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-success) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin: 0;
+            font-weight: 400;
+        }
+
+        .brand-highlight {
+            color: var(--accent-success);
+        }
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 0;
+        }
+
+        .nav-tab {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .nav-tab:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-tab.active {
+            color: var(--accent-success);
+            border-bottom-color: var(--accent-success);
+        }
+
+        .form-card {
+            background-color: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+            box-shadow: var(--shadow-md);
+        }
+
+        .form-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 var(--spacing-lg) 0;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .form-input,
+        .form-select {
+            padding: 10px 12px;
+            background-color: var(--bg-elevated);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: var(--font-family);
+            transition: all 0.2s;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--accent-success);
+            background-color: var(--bg-secondary);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-family: var(--font-family);
+        }
+
+        .btn-primary {
+            background-color: var(--accent-success);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-success-dark);
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-elevated);
+            color: var(--text-primary);
+            border: 1px solid var(--border-medium);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--hover-overlay);
+        }
+
+        .link-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            background-color: var(--accent-success);
+            color: white;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .link-button:hover {
+            background-color: var(--accent-success-dark);
+        }
+
+        .link-button.add-link {
+            background-color: var(--bg-elevated);
+            border: 1px solid var(--border-medium);
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .link-button.add-link:hover {
+            background-color: var(--hover-overlay);
+            color: var(--text-primary);
+            border-color: var(--border-strong);
+        }
+
+        .link-actions {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .edit-link-btn {
+            padding: 4px 8px;
+            background-color: var(--bg-elevated);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .edit-link-btn:hover {
+            background-color: var(--hover-overlay);
+            color: var(--text-primary);
+        }
+
+        .editable-date {
+            background-color: transparent;
+            border: 1px solid transparent;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 400;
+            font-family: var(--font-family);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .editable-date:hover {
+            background-color: var(--hover-overlay);
+            border-color: var(--border-medium);
+        }
+
+        .editable-date:focus {
+            outline: none;
+            border-color: var(--accent-success);
+            background-color: var(--bg-elevated);
+        }
+
+        /* Style the calendar icon */
+        .editable-date::-webkit-calendar-picker-indicator {
+            filter: invert(0.7);
+            opacity: 0.7;
+            cursor: pointer;
+        }
+
+        .editable-date::-webkit-calendar-picker-indicator:hover {
+            opacity: 1;
+        }
+
+        .forecast-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+            background-color: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+        }
+
+        .forecast-badge::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .forecast-won::before {
+            background-color: var(--accent-success);
+        }
+
+        .forecast-wiv::before {
+            background-color: var(--accent-warning);
+        }
+
+        .forecast-fwd::before {
+            background-color: var(--accent-error);
+        }
+
+        .forecast-badge {
+            cursor: pointer;
+            position: relative;
+        }
+
+        .forecast-badge:hover {
+            background-color: rgba(255, 255, 255, 0.12);
+        }
+
+        /* Forecast Dropdown */
+        .forecast-dropdown-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-lg);
+            min-width: 140px;
+            z-index: 100;
+            padding: 4px;
+        }
+
+        .forecast-dropdown-menu.show {
+            display: block;
+        }
+
+        .forecast-option {
+            padding: 8px 12px;
+            color: var(--text-primary);
+            font-size: 13px;
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .forecast-option:hover {
+            background-color: var(--hover-overlay);
+        }
+
+        .forecast-option::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .forecast-option[data-forecast="WON"]::before {
+            background-color: var(--accent-success);
+        }
+
+        .forecast-option[data-forecast="WIV"]::before {
+            background-color: var(--accent-warning);
+        }
+
+        .forecast-option[data-forecast="FWD"]::before {
+            background-color: var(--accent-error);
+        }
+
+        .region-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: 500;
+            background-color: rgba(255, 255, 255, 0.08);
+            color: var(--text-secondary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: var(--text-tertiary);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .empty-state-subtext {
+            font-size: 14px;
+        }
+
+        .table-stats {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+            padding: 0 var(--spacing-lg);
+        }
+
+        .stat-item {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .stat-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Enhanced Table Styling */
+        .data-table {
+            background-color: #121212;
+        }
+
+        .data-table thead {
+            background-color: rgba(255, 255, 255, 0.06);
+        }
+
+        .data-table thead tr {
+            background-color: rgba(255, 255, 255, 0.06);
+        }
+
+        .data-table th {
+            padding: 14px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #9ca3af;
+            text-transform: none;
+            letter-spacing: 0.3px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .data-table tbody {
+            background-color: #121212;
+        }
+
+        .data-table tbody tr {
+            background-color: #121212;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .data-table tbody tr:hover {
+            background-color: #1a1a1a;
+        }
+
+        .data-table td {
+            padding: 14px 16px;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .data-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        /* Forecast Group Headers */
+        .forecast-group-header {
+            background-color: var(--bg-elevated);
+            border-bottom: 1px solid var(--border-medium);
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-secondary);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .forecast-group-header td {
+            padding: 10px 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 11px;
+        }
+
+        .forecast-group-header.forecast-won {
+            background-color: rgba(255, 255, 255, 0.02);
+            border-bottom-color: rgba(74, 222, 128, 0.2);
+        }
+
+        .forecast-group-header.forecast-won td {
+            color: var(--text-secondary);
+        }
+
+        .forecast-group-header.forecast-wiv {
+            background-color: rgba(255, 255, 255, 0.02);
+            border-bottom-color: rgba(251, 191, 36, 0.2);
+        }
+
+        .forecast-group-header.forecast-wiv td {
+            color: var(--text-secondary);
+        }
+
+        .forecast-group-header.forecast-fwd {
+            background-color: rgba(255, 255, 255, 0.02);
+            border-bottom-color: rgba(239, 68, 68, 0.2);
+        }
+
+        .forecast-group-header.forecast-fwd td {
+            color: var(--text-secondary);
+        }
+
+        .forecast-group-count {
+            font-weight: 400;
+            color: var(--text-secondary);
+            margin-left: 8px;
+        }
+
+        .cell-drag-handle {
+            width: 40px;
+            color: var(--text-tertiary);
+            font-size: 18px;
+            cursor: grab;
+            user-select: none;
+            text-align: center;
+        }
+
+        .cell-checkbox {
+            width: 48px;
+        }
+
+        .more-options-button {
+            color: var(--text-tertiary);
+            font-size: 20px;
+            padding: 6px;
+            line-height: 1;
+        }
+
+        .data-table td strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Consistent font for specific columns */
+        .data-table td {
+            font-size: 14px;
+            font-weight: 400;
+        }
+
+        .editable-date {
+            font-size: 14px;
+            font-weight: 400;
+        }
+
+        /* Filter Buttons */
+        .filter-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background-color: var(--bg-elevated);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .filter-btn:hover {
+            background-color: var(--hover-overlay);
+            color: var(--text-primary);
+        }
+
+        .filter-btn.active {
+            background-color: var(--accent-success);
+            border-color: var(--accent-success);
+            color: white;
+        }
+
+        .filter-count {
+            display: inline-block;
+            padding: 2px 8px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .filter-btn.active .filter-count {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .table-header-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        /* Search Bar */
+        .search-bar {
+            position: relative;
+            flex: 1;
+            max-width: 300px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 8px 16px 8px 36px;
+            background-color: var(--bg-elevated);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 13px;
+            font-family: var(--font-family);
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-success);
+            background-color: var(--bg-secondary);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        /* Dropdown Filter */
+        .filter-dropdown {
+            position: relative;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-lg);
+            min-width: 180px;
+            z-index: 100;
+            padding: 4px;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 8px 12px;
+            color: var(--text-primary);
+            font-size: 13px;
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--hover-overlay);
+        }
+
+        .dropdown-item.active {
+            background-color: var(--active-overlay);
+            color: var(--accent-success);
+        }
+
+        .dropdown-item .checkmark {
+            color: var(--accent-success);
+            font-size: 14px;
+        }
+
+        .filter-btn.has-selection {
+            border-color: var(--accent-success);
+        }
+
+        /* Costing Summary Cell */
+        .costing-summary {
+            font-size: 11px;
+            line-height: 1.4;
+            min-width: 150px;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 0;
+            max-width: 700px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .modal-header {
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 28px;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            background-color: var(--hover-overlay);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: var(--spacing-lg);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+        }
+
+        .btn-add-project {
+            padding: 10px 20px;
+            background-color: var(--accent-success);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-add-project:hover {
+            background-color: var(--accent-success-dark);
+            transform: translateY(-1px);
+        }
+
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="dashboard-container" style="padding: 24px; max-width: 1600px; margin: 0 auto;">
+        
+        <!-- Firebase SDKs -->
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+        <script src="firebase-config.js"></script>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Mechanical Products CRM</h1>
+            <p class="page-subtitle">Equipment catalogue and project management</p>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <a href="index.html" class="nav-tab active">Projects</a>
+            <a href="equipment-catalogue.html" class="nav-tab">Equipment Catalogue</a>
+            <a href="analytics.html" class="nav-tab">Analytics</a>
+        </div>
+
+        <!-- Add Project Modal -->
+        <div id="addProjectModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Add New Project</h2>
+                    <button class="modal-close" onclick="closeModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="addProjectForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label" for="projectName">Project Name *</label>
+                        <input 
+                            type="text" 
+                            id="projectName" 
+                            class="form-input" 
+                            placeholder="Enter project name"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="region">Region *</label>
+                        <select id="region" class="form-select" required>
+                            <option value="">Select region...</option>
+                            <option value="Africa">Africa</option>
+                            <option value="North America">North America</option>
+                            <option value="South America">South America</option>
+                            <option value="Australia">Australia</option>
+                            <option value="India">India</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="crmReference">CRM Reference *</label>
+                        <input 
+                            type="text" 
+                            id="crmReference" 
+                            class="form-input" 
+                            placeholder="e.g., CRM-2025-001"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="forecast">Forecast *</label>
+                        <select id="forecast" class="form-select" required>
+                            <option value="">Select forecast...</option>
+                            <option value="WON">WON - Won</option>
+                            <option value="WIV">WIV - Work in View</option>
+                            <option value="FWD">FWD - Forward</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="followUpDate">Next Follow-up Date</label>
+                        <input 
+                            type="date" 
+                            id="followUpDate" 
+                            class="form-input"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="airtableLink">Airtable Link</label>
+                        <input 
+                            type="url" 
+                            id="airtableLink" 
+                            class="form-input" 
+                            placeholder="https://airtable.com/..."
+                        >
+                    </div>
+                </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="resetForm()">Clear</button>
+                            <button type="submit" class="btn btn-primary">Add Project</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="filter-buttons">
+                <button class="btn-add-project" onclick="openModal()">
+                    <span>+</span> Add Project
+                </button>
+                <button class="filter-btn active" data-filter="all">
+                    All
+                    <span class="filter-count" id="allCount">0</span>
+                </button>
+                
+                <!-- Region Filter -->
+                <div class="filter-dropdown">
+                    <button class="filter-btn" id="regionFilterBtn" onclick="toggleDropdown('regionDropdown')">
+                        Region <span>▼</span>
+                    </button>
+                    <div class="dropdown-menu" id="regionDropdown">
+                        <div class="dropdown-item active" data-value="all" onclick="selectRegion('all')">
+                            All Regions
+                            <span class="checkmark">✓</span>
+                        </div>
+                        <div class="dropdown-item" data-value="Africa" onclick="selectRegion('Africa')">
+                            Africa
+                        </div>
+                        <div class="dropdown-item" data-value="North America" onclick="selectRegion('North America')">
+                            North America
+                        </div>
+                        <div class="dropdown-item" data-value="South America" onclick="selectRegion('South America')">
+                            South America
+                        </div>
+                        <div class="dropdown-item" data-value="Australia" onclick="selectRegion('Australia')">
+                            Australia
+                        </div>
+                        <div class="dropdown-item" data-value="India" onclick="selectRegion('India')">
+                            India
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Forecast Filter -->
+                <div class="filter-dropdown">
+                    <button class="filter-btn" id="forecastFilterBtn" onclick="toggleDropdown('forecastDropdown')">
+                        Forecast <span>▼</span>
+                    </button>
+                    <div class="dropdown-menu" id="forecastDropdown">
+                        <div class="dropdown-item active" data-value="all" onclick="selectForecast('all')">
+                            All Forecasts
+                            <span class="checkmark">✓</span>
+                        </div>
+                        <div class="dropdown-item" data-value="WON" onclick="selectForecast('WON')">
+                            WON
+                        </div>
+                        <div class="dropdown-item" data-value="WIV" onclick="selectForecast('WIV')">
+                            WIV
+                        </div>
+                        <div class="dropdown-item" data-value="FWD" onclick="selectForecast('FWD')">
+                            FWD
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search Bar -->
+                <div class="search-bar">
+                    <span class="search-icon">🔍</span>
+                    <input 
+                        type="text" 
+                        class="search-input" 
+                        id="searchInput" 
+                        placeholder="Search projects..."
+                        oninput="searchProjects()"
+                    >
+                </div>
+            </div>
+            <div class="table-header-actions">
+                <button class="action-button">
+                    Export Data <span>↓</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Projects Table -->
+        <section class="table-container">
+            <div id="tableWrapper">
+                <table class="data-table" id="projectsTable">
+                    <thead>
+                        <tr>
+                            <th class="cell-drag-handle"></th>
+                            <th class="cell-checkbox">
+                                <input type="checkbox" id="selectAll" aria-label="Select all rows">
+                            </th>
+                            <th>Project Name</th>
+                            <th>Region</th>
+                            <th>CRM Reference</th>
+                            <th>Forecast</th>
+                            <th>Next Follow-up</th>
+                            <th>Cost/Margin/Sell</th>
+                            <th>Equipment Split</th>
+                            <th>Airtable</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="projectsTableBody">
+                        <!-- Rows will be dynamically added here -->
+                    </tbody>
+                </table>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="empty-state">
+                    <div class="empty-state-icon">📋</div>
+                    <div class="empty-state-text">No projects yet</div>
+                    <div class="empty-state-subtext">Add your first project using the form above</div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Projects data store
+        let projects = [];
+        let projectIdCounter = 1;
+
+        // ===== Firebase Firestore helpers =====
+        async function loadProjectsFromFirestore() {
+            try {
+                // Try to order by createdAt, but fallback to just getting all docs if field doesn't exist
+                let snapshot;
+                try {
+                    snapshot = await firestoreCollections.projects().orderBy('createdAt', 'asc').get();
+                } catch (orderError) {
+                    // If createdAt doesn't exist or index not set up, just get all docs
+                    snapshot = await firestoreCollections.projects().get();
+                }
+                const docs = snapshot.docs.map(doc => {
+                    const data = doc.data();
+                    return {
+                        id: doc.id, // Firestore document ID (always a string)
+                        ...data // Spread document data
+                    };
+                });
+                projects = docs.map((d, idx) => {
+                    // Use clientId (original numeric ID) if available, otherwise generate a numeric ID
+                    let projectId = d.clientId;
+                    if (projectId === undefined || projectId === null) {
+                        // Generate a simple numeric ID based on index
+                        // We'll use the index + a large number to avoid conflicts
+                        projectId = idx + 1;
+                    }
+                    return {
+                        id: projectId,
+                    name: d.name || '',
+                    region: d.region || '',
+                    crmReference: d.crmReference || '',
+                    forecast: d.forecast || 'WIV',
+                    followUpDate: d.followUpDate || '',
+                    airtableLink: d.airtableLink || '',
+                    costMarginSell: d.costMarginSell || '',
+                    lastUpdate: d.lastUpdate || '',
+                    actions: d.actions || ''
+                    };
+                });
+                // keep a simple counter (optional)
+                projectIdCounter = Math.max(projects.reduce((m, p) => Math.max(m, parseInt(p.id) || 0), 0) + 1, 1);
+            } catch (e) {
+                console.error('Error loading projects from Firestore:', e);
+            }
+        }
+
+        async function addProjectToFirestore(project) {
+            try {
+                const docRef = await firestoreCollections.projects().add({
+                    ...project,
+                    clientId: project.id,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                });
+                return docRef.id;
+            } catch (e) {
+                console.error('Error adding project to Firestore:', e);
+                return null;
+            }
+        }
+
+        async function updateProjectInFirestore(projectId, updates) {
+            try {
+                // Find by clientId if numeric id used
+                const byClientId = await firestoreCollections.projects().where('clientId', '==', projectId).limit(1).get();
+                let docId = null;
+                if (!byClientId.empty) {
+                    docId = byClientId.docs[0].id;
+                } else {
+                    // fallback assume projectId is the doc id (string)
+                    docId = String(projectId);
+                }
+                await firestoreCollections.projects().doc(docId).set({
+                    ...updates,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                }, { merge: true });
+            } catch (e) {
+                console.error('Error updating project in Firestore:', e);
+            }
+        }
+
+        async function deleteProjectFromFirestore(projectId) {
+            try {
+                const byClientId = await firestoreCollections.projects().where('clientId', '==', projectId).limit(1).get();
+                let docId = null;
+                if (!byClientId.empty) {
+                    docId = byClientId.docs[0].id;
+                    await firestoreCollections.projects().doc(docId).delete();
+                } else {
+                    // fallback
+                    await firestoreCollections.projects().doc(String(projectId)).delete();
+                }
+            } catch (e) {
+                console.error('Error deleting project from Firestore:', e);
+            }
+        }
+
+        // Save projects to localStorage
+        function saveProjectsToLocalStorage() {
+            try {
+                localStorage.setItem('crmProjects', JSON.stringify(projects));
+                localStorage.setItem('projectIdCounter', projectIdCounter.toString());
+            } catch (e) {
+                console.error('Error saving projects:', e);
+            }
+        }
+
+        // Load projects from localStorage
+        function loadProjectsFromLocalStorage() {
+            try {
+                const saved = localStorage.getItem('crmProjects');
+                const savedCounter = localStorage.getItem('projectIdCounter');
+                
+                if (saved) {
+                    projects = JSON.parse(saved);
+                }
+                
+                if (savedCounter) {
+                    projectIdCounter = parseInt(savedCounter);
+                }
+            } catch (e) {
+                console.error('Error loading projects:', e);
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Prefer Firestore; fallback to localStorage if Firestore not configured
+            const hasFirebase = typeof firebase !== 'undefined' && typeof db !== 'undefined';
+            if (hasFirebase) {
+                // Load from Firestore first
+                await loadProjectsFromFirestore();
+                
+                // Only migrate from localStorage if Firestore is empty AND we haven't migrated before
+                if (projects.length === 0) {
+                    const migrationComplete = localStorage.getItem('firestoreMigrationComplete');
+                    if (!migrationComplete) {
+                        loadProjectsFromLocalStorage();
+                        
+                        // If we found projects in localStorage, migrate them to Firestore (one-time migration)
+                        if (projects.length > 0) {
+                            console.log(`Migrating ${projects.length} projects from localStorage to Firestore...`);
+                            for (const p of projects) {
+                                await addProjectToFirestore(p);
+                            }
+                            // Mark migration as complete and clear localStorage
+                            localStorage.setItem('firestoreMigrationComplete', 'true');
+                            localStorage.removeItem('crmProjects');
+                            // Reload from Firestore to get the new IDs
+                            await loadProjectsFromFirestore();
+                        } else {
+                            // No projects anywhere - don't load sample data automatically
+                            localStorage.setItem('firestoreMigrationComplete', 'true');
+                        }
+                    }
+                    // DO NOT load sample data automatically - user should add projects manually
+                }
+            } else {
+                // No Firebase - use localStorage only
+                loadProjectsFromLocalStorage();
+                // Only load sample data if localStorage is completely empty (first time use)
+                if (projects.length === 0) {
+                    loadSampleData();
+                    saveProjectsToLocalStorage();
+                }
+            }
+            renderTable();
+            updateStats();
+        });
+
+        // Modal functions
+        function openModal() {
+            document.getElementById('addProjectModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('addProjectModal').classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal on background click
+        document.getElementById('addProjectModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Form submission
+        document.getElementById('addProjectForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const project = {
+                id: projectIdCounter++,
+                name: document.getElementById('projectName').value,
+                region: document.getElementById('region').value,
+                crmReference: document.getElementById('crmReference').value,
+                forecast: document.getElementById('forecast').value,
+                followUpDate: document.getElementById('followUpDate').value,
+                airtableLink: document.getElementById('airtableLink').value,
+                costMarginSell: '',
+                lastUpdate: '',
+                actions: ''
+            };
+
+            projects.push(project);
+            // Save to Firestore if available
+            if (typeof db !== 'undefined') {
+                await addProjectToFirestore(project);
+            } else {
+                saveProjectsToLocalStorage();
+            }
+            renderTable();
+            updateStats();
+            resetForm();
+            closeModal();
+            
+            // Show success feedback
+            showNotification('Project added successfully!');
+        });
+
+        // Simple notification function
+        function showNotification(message) {
+            // You can replace this with a better notification system
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background-color: var(--accent-success);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                z-index: 2000;
+                animation: slideInRight 0.3s ease-out;
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease-out';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Reset form
+        function resetForm() {
+            document.getElementById('addProjectForm').reset();
+        }
+
+        // Get equipment split for a project
+        function getEquipmentSplit(projectId) {
+            const costingKey = `costing_${projectId}_costing`;
+            const saved = localStorage.getItem(costingKey);
+            
+            if (!saved) {
+                return '<span style="color: var(--text-tertiary); font-size: 12px;">No costing data</span>';
+            }
+
+            try {
+                const data = JSON.parse(saved);
+                const lineItems = data.lineItems || [];
+                const discount = data.discount || 0;
+                
+                if (lineItems.length === 0) {
+                    return '<span style="color: var(--text-tertiary); font-size: 12px;">No items</span>';
+                }
+
+                // Group by equipment type and calculate revenue
+                const typeMetrics = {};
+                let totalRevenue = 0;
+
+                lineItems.forEach(item => {
+                    const type = item.equipmentType || 'Other';
+                    const cost = parseFloat(item.cost.replace(/[$,]/g, '')) || 0;
+                    const margin = parseFloat(item.margin) || 0;
+                    const qty = parseFloat(item.quantity) || 1;
+                    // Sell Price = Cost / (1 - Margin%)
+                    const marginDecimal = margin / 100;
+                    const unitPrice = marginDecimal >= 1 ? cost : cost / (1 - marginDecimal);
+                    const revenueBeforeDiscount = unitPrice * qty;
+
+                    if (!typeMetrics[type]) {
+                        typeMetrics[type] = 0;
+                    }
+
+                    typeMetrics[type] += revenueBeforeDiscount;
+                    totalRevenue += revenueBeforeDiscount;
+                });
+
+                // Apply discount proportionally
+                Object.keys(typeMetrics).forEach(type => {
+                    const discountAmount = typeMetrics[type] * (discount / 100);
+                    typeMetrics[type] = typeMetrics[type] - discountAmount;
+                });
+
+                // Recalculate total after discount
+                totalRevenue = Object.values(typeMetrics).reduce((sum, val) => sum + val, 0);
+
+                if (totalRevenue === 0) {
+                    return '<span style="color: var(--text-tertiary); font-size: 12px;">No data</span>';
+                }
+
+                // Sort by revenue (highest first)
+                const sortedTypes = Object.entries(typeMetrics)
+                    .sort((a, b) => b[1] - a[1]);
+
+                // Format currency
+                const formatCurrency = (num) => {
+                    return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+                };
+
+                // Build compact display - show top 2 types
+                const displayTypes = sortedTypes.slice(0, 2);
+                const items = displayTypes.map(([type, revenue], index) => {
+                    const percent = (revenue / totalRevenue * 100).toFixed(0);
+                    return `
+                        <div style="display: inline-flex; flex-direction: column; gap: 2px;">
+                            <div>
+                                <span style="color: var(--text-primary); font-weight: 600;">${type}</span> 
+                                <span style="color: var(--accent-success); font-weight: 700;">${percent}%</span>
+                            </div>
+                            <span style="color: var(--text-secondary); font-size: 10px;">${formatCurrency(revenue)}</span>
+                        </div>
+                        ${index < displayTypes.length - 1 ? '<span style="color: var(--text-tertiary); font-size: 14px; margin: 0 6px;">//</span>' : ''}
+                    `;
+                }).join('');
+
+                return `<div style="font-size: 12px; line-height: 1.3; display: flex; align-items: center;">${items}</div>`;
+
+            } catch (e) {
+                console.error('Error calculating equipment split:', e);
+                return '<span style="color: var(--text-tertiary); font-size: 12px;">Error</span>';
+            }
+        }
+
+        // Get costing summary for a project
+        function getCostingSummary(projectId) {
+            const costingKey = `costing_${projectId}_costing`;
+            const saved = localStorage.getItem(costingKey);
+            
+            if (!saved) {
+                return '<span style="color: var(--text-tertiary); font-size: 12px;">No costing data</span>';
+            }
+
+            try {
+                const data = JSON.parse(saved);
+                const lineItems = data.lineItems || [];
+                const discount = data.discount || 0;
+                
+                if (lineItems.length === 0) {
+                    return '<span style="color: var(--text-tertiary); font-size: 12px;">No items</span>';
+                }
+
+                let totalCost = 0;
+                let subtotal = 0;
+
+                lineItems.forEach(item => {
+                    const cost = parseFloat(item.cost.replace(/[$,]/g, '')) || 0;
+                    const margin = parseFloat(item.margin) || 0;
+                    const qty = parseFloat(item.quantity) || 1;
+                    // Sell Price = Cost / (1 - Margin%)
+                    const marginDecimal = margin / 100;
+                    const unitPrice = marginDecimal >= 1 ? cost : cost / (1 - marginDecimal);
+                    const price = unitPrice * qty;
+
+                    totalCost += cost * qty;
+                    subtotal += price;
+                });
+
+                // Apply discount
+                const discountAmount = subtotal * (discount / 100);
+                const totalPrice = subtotal - discountAmount;
+
+                const marginAmount = totalPrice - totalCost;
+                // Profit Margin = (Total Price - Total Cost) / Total Price × 100
+                const marginPercent = totalPrice > 0 ? ((marginAmount / totalPrice) * 100) : 0;
+
+                // Format currency
+                const formatCurrency = (num) => {
+                    return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+                };
+
+                return `
+                    <div style="font-size: 11px; line-height: 1.4;">
+                        <div style="color: var(--text-secondary);">Cost: <span style="color: var(--text-primary);">${formatCurrency(totalCost)}</span></div>
+                        <div style="color: var(--text-secondary);">Sell: <span style="color: var(--text-primary);">${formatCurrency(totalPrice)}</span></div>
+                        <div style="border-top: 1px solid var(--border-subtle); margin: 4px 0;"></div>
+                        <div style="color: var(--accent-success); font-weight: 600;">
+                            Margin: ${marginPercent.toFixed(1)}% (${formatCurrency(marginAmount)})
+                        </div>
+                    </div>
+                `;
+            } catch (e) {
+                console.error('Error calculating costing summary:', e);
+                return '<span style="color: var(--text-tertiary); font-size: 12px;">Error</span>';
+            }
+        }
+
+        // Render table with forecast grouping
+        function renderTable() {
+            const tbody = document.getElementById('projectsTableBody');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (projects.length === 0) {
+                emptyState.style.display = 'block';
+                tbody.innerHTML = '';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            
+            // Group projects by forecast type
+            const forecastGroups = {
+                'WON': projects.filter(p => p.forecast === 'WON'),
+                'WIV': projects.filter(p => p.forecast === 'WIV'),
+                'FWD': projects.filter(p => p.forecast === 'FWD')
+            };
+
+            // Also handle projects without forecast or with other values
+            const otherProjects = projects.filter(p => !['WON', 'WIV', 'FWD'].includes(p.forecast));
+            if (otherProjects.length > 0) {
+                forecastGroups['OTHER'] = otherProjects;
+            }
+
+            // Build HTML with group headers
+            let html = '';
+            const forecastOrder = ['WON', 'WIV', 'FWD', 'OTHER'];
+            
+            forecastOrder.forEach(forecastType => {
+                const groupProjects = forecastGroups[forecastType];
+                if (!groupProjects || groupProjects.length === 0) return;
+
+                // Add group header
+                const forecastLabels = {
+                    'WON': 'WON - Won',
+                    'WIV': 'WIV - Work in View',
+                    'FWD': 'FWD - Forward',
+                    'OTHER': 'Other'
+                };
+
+                html += `
+                    <tr class="forecast-group-header forecast-${forecastType.toLowerCase()}" data-forecast-group="${forecastType}">
+                        <td colspan="10">
+                            ${forecastLabels[forecastType]} <span class="forecast-group-count">(${groupProjects.length} project${groupProjects.length !== 1 ? 's' : ''})</span>
+                        </td>
+                    </tr>
+                `;
+
+                // Add projects in this group
+                groupProjects.forEach(project => {
+                    html += `
+                        <tr data-id="${project.id}" data-forecast="${project.forecast}" style="cursor: pointer;" onclick="openProject(${project.id}, event)">
+                            <td class="cell-drag-handle" onclick="event.stopPropagation()">⋮⋮</td>
+                            <td class="cell-checkbox" onclick="event.stopPropagation()">
+                                <input type="checkbox" aria-label="Select row">
+                            </td>
+                            <td><strong>${escapeHtml(project.name)}</strong></td>
+                            <td><span class="region-badge">${escapeHtml(project.region)}</span></td>
+                            <td>${escapeHtml(project.crmReference)}</td>
+                            <td>
+                                <div style="position: relative; display: inline-block;">
+                                    <span style="cursor: pointer; color: var(--text-primary); font-size: 13px; padding: 4px 8px; border-radius: 4px; transition: background-color 0.2s;" 
+                                          onmouseover="this.style.backgroundColor='var(--hover-overlay)'" 
+                                          onmouseout="this.style.backgroundColor='transparent'"
+                                          onclick="toggleForecastDropdown(${project.id}, event)">
+                                        ${escapeHtml(project.forecast)}
+                                    </span>
+                                    <div class="forecast-dropdown-menu" id="forecast-dropdown-${project.id}">
+                                        <div class="forecast-option" data-forecast="WON" onclick="updateForecast(${project.id}, 'WON')">
+                                            WON
+                                        </div>
+                                        <div class="forecast-option" data-forecast="WIV" onclick="updateForecast(${project.id}, 'WIV')">
+                                            WIV
+                                        </div>
+                                        <div class="forecast-option" data-forecast="FWD" onclick="updateForecast(${project.id}, 'FWD')">
+                                            FWD
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td onclick="event.stopPropagation()">
+                                <input 
+                                    type="date" 
+                                    class="editable-date" 
+                                    value="${project.followUpDate}"
+                                    onchange="updateFollowUpDate(${project.id}, this.value)"
+                                >
+                            </td>
+                            <td onclick="event.stopPropagation()">
+                                ${getCostingSummary(project.id)}
+                            </td>
+                            <td onclick="event.stopPropagation()">
+                                ${getEquipmentSplit(project.id)}
+                            </td>
+                            <td onclick="event.stopPropagation()">
+                                <div class="link-actions">
+                                    ${project.airtableLink 
+                                        ? `<a href="${escapeHtml(project.airtableLink)}" target="_blank" class="link-button">
+                                            🔗 Open
+                                           </a>
+                                           <button class="edit-link-btn" onclick="editAirtableLink(${project.id}, event)">Edit</button>`
+                                        : `<button class="link-button add-link" onclick="editAirtableLink(${project.id}, event)">+ Add Link</button>`
+                                    }
+                                </div>
+                            </td>
+                            <td style="text-align: center;" onclick="event.stopPropagation()">
+                                <button class="more-options-button" onclick="showActions(${project.id})">⋮</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            });
+
+            tbody.innerHTML = html;
+
+            // Re-attach event listeners for checkboxes
+            attachCheckboxListeners();
+        }
+
+        // Open project detail page
+        function openProject(projectId, event) {
+            // Don't navigate if clicking on interactive elements
+            if (event && (event.target.tagName === 'INPUT' || event.target.tagName === 'BUTTON' || event.target.tagName === 'A' || event.target.closest('.forecast-dropdown-menu'))) {
+                return;
+            }
+            window.location.href = `project-detail.html?id=${projectId}`;
+        }
+
+        // Update follow-up date
+        function updateFollowUpDate(projectId, newDate) {
+            const project = projects.find(p => p.id === projectId);
+            if (project) {
+                project.followUpDate = newDate;
+                saveProjectsToLocalStorage();
+                updateStats();
+            }
+        }
+
+        // Edit Airtable link
+        function editAirtableLink(projectId, event) {
+            event.stopPropagation();
+            
+            const project = projects.find(p => p.id === projectId);
+            if (!project) return;
+
+            const currentLink = project.airtableLink || '';
+            const newLink = prompt('Enter Airtable link:', currentLink);
+            
+            if (newLink !== null) { // User clicked OK (even if empty)
+                project.airtableLink = newLink.trim();
+                saveProjectsToLocalStorage();
+                renderTable();
+            }
+        }
+
+        // Filter state
+        let currentFilters = {
+            region: 'all',
+            forecast: 'all',
+            search: ''
+        };
+
+        // Update statistics
+        function updateStats() {
+            const total = projects.length;
+            document.getElementById('allCount').textContent = total;
+        }
+
+        // Show actions menu
+        function showActions(projectId) {
+            const project = projects.find(p => p.id === projectId);
+            if (!project) return;
+
+            const action = confirm(`Actions for "${project.name}":\n\nClick OK to delete this project, or Cancel to close.`);
+            
+            if (action) {
+                projects = projects.filter(p => p.id !== projectId);
+                if (typeof db !== 'undefined') {
+                    deleteProjectFromFirestore(projectId);
+                } else {
+                    saveProjectsToLocalStorage();
+                }
+                renderTable();
+                updateStats();
+            }
+        }
+
+        // Attach checkbox listeners
+        function attachCheckboxListeners() {
+            const tableRows = document.querySelectorAll('.data-table tbody tr');
+            tableRows.forEach(row => {
+                const checkbox = row.querySelector('input[type="checkbox"]');
+                if (checkbox) {
+                    checkbox.addEventListener('change', function() {
+                        if (this.checked) {
+                            row.classList.add('selected');
+                        } else {
+                            row.classList.remove('selected');
+                        }
+                    });
+                }
+            });
+        }
+
+        // Select all functionality
+        document.getElementById('selectAll').addEventListener('change', function() {
+            const allCheckboxes = document.querySelectorAll('.data-table tbody input[type="checkbox"]');
+            allCheckboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+                const row = checkbox.closest('tr');
+                if (this.checked) {
+                    row.classList.add('selected');
+                } else {
+                    row.classList.remove('selected');
+                }
+            });
+        });
+
+        // Dropdown toggle
+        function toggleDropdown(dropdownId) {
+            const dropdown = document.getElementById(dropdownId);
+            const allDropdowns = document.querySelectorAll('.dropdown-menu');
+            
+            // Close other dropdowns
+            allDropdowns.forEach(d => {
+                if (d.id !== dropdownId) {
+                    d.classList.remove('show');
+                }
+            });
+            
+            dropdown.classList.toggle('show');
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.filter-dropdown')) {
+                document.querySelectorAll('.dropdown-menu').forEach(d => d.classList.remove('show'));
+            }
+        });
+
+        // Select region filter
+        function selectRegion(value) {
+            currentFilters.region = value;
+            
+            // Update active state in dropdown
+            const items = document.querySelectorAll('#regionDropdown .dropdown-item');
+            items.forEach(item => {
+                if (item.getAttribute('data-value') === value) {
+                    item.classList.add('active');
+                    item.innerHTML = item.textContent.replace(' ✓', '') + ' <span class="checkmark">✓</span>';
+                } else {
+                    item.classList.remove('active');
+                    item.innerHTML = item.textContent.replace(' ✓', '');
+                }
+            });
+            
+            // Update button appearance
+            const btn = document.getElementById('regionFilterBtn');
+            if (value === 'all') {
+                btn.classList.remove('has-selection');
+                btn.innerHTML = 'Region <span>▼</span>';
+            } else {
+                btn.classList.add('has-selection');
+                btn.innerHTML = value + ' <span>▼</span>';
+            }
+            
+            applyFilters();
+            document.getElementById('regionDropdown').classList.remove('show');
+        }
+
+        // Select forecast filter
+        function selectForecast(value) {
+            currentFilters.forecast = value;
+            
+            // Update active state in dropdown
+            const items = document.querySelectorAll('#forecastDropdown .dropdown-item');
+            items.forEach(item => {
+                if (item.getAttribute('data-value') === value) {
+                    item.classList.add('active');
+                    item.innerHTML = item.textContent.replace(' ✓', '') + ' <span class="checkmark">✓</span>';
+                } else {
+                    item.classList.remove('active');
+                    item.innerHTML = item.textContent.replace(' ✓', '');
+                }
+            });
+            
+            // Update button appearance
+            const btn = document.getElementById('forecastFilterBtn');
+            if (value === 'all') {
+                btn.classList.remove('has-selection');
+                btn.innerHTML = 'Forecast <span>▼</span>';
+            } else {
+                btn.classList.add('has-selection');
+                btn.innerHTML = value + ' <span>▼</span>';
+            }
+            
+            applyFilters();
+            document.getElementById('forecastDropdown').classList.remove('show');
+        }
+
+        // Search projects
+        function searchProjects() {
+            currentFilters.search = document.getElementById('searchInput').value.toLowerCase();
+            applyFilters();
+        }
+
+        // Apply all filters
+        function applyFilters() {
+            const rows = document.querySelectorAll('.data-table tbody tr');
+            const groupHeaders = {};
+            
+            rows.forEach(row => {
+                // Handle group headers
+                if (row.classList.contains('forecast-group-header')) {
+                    const forecastType = row.getAttribute('data-forecast-group');
+                    groupHeaders[forecastType] = row;
+                    row.style.display = 'none'; // Hide by default, show if group has visible projects
+                    return;
+                }
+
+                const projectId = parseInt(row.getAttribute('data-id'));
+                if (!projectId) return;
+                
+                const project = projects.find(p => p.id === projectId);
+                if (!project) return;
+                
+                // Check region filter
+                const regionMatch = currentFilters.region === 'all' || project.region === currentFilters.region;
+                
+                // Check forecast filter
+                const forecastMatch = currentFilters.forecast === 'all' || project.forecast === currentFilters.forecast;
+                
+                // Check search filter
+                let searchMatch = true;
+                if (currentFilters.search) {
+                    const searchText = currentFilters.search;
+                    searchMatch = (
+                        project.name.toLowerCase().includes(searchText) ||
+                        project.region.toLowerCase().includes(searchText) ||
+                        project.crmReference.toLowerCase().includes(searchText) ||
+                        project.forecast.toLowerCase().includes(searchText) ||
+                        (project.followUpDate && project.followUpDate.includes(searchText)) ||
+                        (project.airtableLink && project.airtableLink.toLowerCase().includes(searchText))
+                    );
+                }
+                
+                // Show/hide row based on all filters
+                if (regionMatch && forecastMatch && searchMatch) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Show/hide group headers based on visible projects
+            Object.keys(groupHeaders).forEach(forecastType => {
+                const header = groupHeaders[forecastType];
+                const groupRows = Array.from(rows).filter(row => {
+                    const rowForecast = row.getAttribute('data-forecast');
+                    return rowForecast === forecastType && row.style.display !== 'none';
+                });
+                
+                if (groupRows.length > 0) {
+                    header.style.display = '';
+                } else {
+                    header.style.display = 'none';
+                }
+            });
+        }
+
+        // "All" button functionality
+        const allButton = document.querySelector('[data-filter="all"]');
+        if (allButton) {
+            allButton.addEventListener('click', function() {
+                // Reset all filters
+                currentFilters = {
+                    region: 'all',
+                    forecast: 'all',
+                    search: ''
+                };
+                
+                // Reset dropdowns
+                selectRegion('all');
+                selectForecast('all');
+                document.getElementById('searchInput').value = '';
+                
+                // Show all rows
+                applyFilters();
+            });
+        }
+
+        // Toggle forecast dropdown
+        function toggleForecastDropdown(projectId, event) {
+            event.stopPropagation();
+            const dropdown = document.getElementById(`forecast-dropdown-${projectId}`);
+            const allDropdowns = document.querySelectorAll('.forecast-dropdown-menu');
+            
+            // Close other dropdowns
+            allDropdowns.forEach(d => {
+                if (d.id !== `forecast-dropdown-${projectId}`) {
+                    d.classList.remove('show');
+                }
+            });
+            
+            dropdown.classList.toggle('show');
+        }
+
+        // Update forecast
+        async function updateForecast(projectId, newForecast) {
+            const project = projects.find(p => p.id === projectId);
+            if (project) {
+                project.forecast = newForecast;
+                if (typeof db !== 'undefined') {
+                    await updateProjectInFirestore(projectId, { forecast: newForecast });
+                } else {
+                    saveProjectsToLocalStorage();
+                }
+                renderTable();
+                showNotification(`Forecast updated to ${newForecast}`);
+            }
+        }
+
+        // Close forecast dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.forecast-dropdown-menu') && !e.target.hasAttribute('onclick')) {
+                document.querySelectorAll('.forecast-dropdown-menu').forEach(d => d.classList.remove('show'));
+            }
+        });
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(unsafe) {
+            if (!unsafe) return '';
+            return unsafe
+                .toString()
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Load sample data
+        function loadSampleData() {
+            projects = [
+                {
+                    id: projectIdCounter++,
+                    name: 'Mining Equipment Upgrade',
+                    region: 'Australia',
+                    crmReference: 'CRM-2025-001',
+                    forecast: 'WON',
+                    followUpDate: '2025-11-20',
+                    airtableLink: 'https://airtable.com/sample1',
+                    costMarginSell: '',
+                    lastUpdate: '',
+                    actions: ''
+                },
+                {
+                    id: projectIdCounter++,
+                    name: 'Safety System Implementation',
+                    region: 'North America',
+                    crmReference: 'CRM-2025-002',
+                    forecast: 'WIV',
+                    followUpDate: '2025-11-15',
+                    airtableLink: 'https://airtable.com/sample2',
+                    costMarginSell: '',
+                    lastUpdate: '',
+                    actions: ''
+                },
+                {
+                    id: projectIdCounter++,
+                    name: 'Infrastructure Development',
+                    region: 'Africa',
+                    crmReference: 'CRM-2025-003',
+                    forecast: 'FWD',
+                    followUpDate: '2025-12-01',
+                    airtableLink: '',
+                    costMarginSell: '',
+                    lastUpdate: '',
+                    actions: ''
+                },
+                {
+                    id: projectIdCounter++,
+                    name: 'Digital Transformation Project',
+                    region: 'India',
+                    crmReference: 'CRM-2025-004',
+                    forecast: 'WIV',
+                    followUpDate: '2025-11-18',
+                    airtableLink: 'https://airtable.com/sample4',
+                    costMarginSell: '',
+                    lastUpdate: '',
+                    actions: ''
+                }
+            ];
+            saveProjectsToLocalStorage();
+        }
+    </script>
+</body>
+</html>
+

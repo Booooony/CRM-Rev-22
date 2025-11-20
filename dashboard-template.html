@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Dashboard - Reference Template</title>
+    <link rel="stylesheet" href="dashboard-styles.css">
+</head>
+<body>
+    <div class="dashboard-container" style="padding: 24px; max-width: 1400px; margin: 0 auto;">
+        
+        <!-- KPI Cards Section -->
+        <section class="kpi-cards-container">
+            <!-- Card 1: Total Revenue -->
+            <div class="kpi-card">
+                <div class="kpi-header">Total Revenue</div>
+                <div class="kpi-value-row">
+                    <span class="kpi-value">$1,250.00</span>
+                    <span class="kpi-change positive">
+                        +12.5% <span class="trend-icon">↑</span>
+                    </span>
+                </div>
+                <div class="kpi-description">Trending up this month</div>
+                <div class="kpi-subdescription">Visitors for the last 6 months</div>
+            </div>
+
+            <!-- Card 2: New Customers -->
+            <div class="kpi-card">
+                <div class="kpi-header">New Customers</div>
+                <div class="kpi-value-row">
+                    <span class="kpi-value">1,234</span>
+                    <span class="kpi-change negative">
+                        -20% <span class="trend-icon">↓</span>
+                    </span>
+                </div>
+                <div class="kpi-description">Down 20% this period</div>
+                <div class="kpi-subdescription">Acquisition needs attention</div>
+            </div>
+
+            <!-- Card 3: Active Accounts -->
+            <div class="kpi-card">
+                <div class="kpi-header">Active Accounts</div>
+                <div class="kpi-value-row">
+                    <span class="kpi-value">45,678</span>
+                    <span class="kpi-change positive">
+                        +12.5% <span class="trend-icon">↑</span>
+                    </span>
+                </div>
+                <div class="kpi-description">Strong user retention</div>
+                <div class="kpi-subdescription">Engagement exceed targets</div>
+            </div>
+
+            <!-- Card 4: Growth Rate -->
+            <div class="kpi-card">
+                <div class="kpi-header">Growth Rate</div>
+                <div class="kpi-value-row">
+                    <span class="kpi-value">4.5%</span>
+                    <span class="kpi-change positive">
+                        +4.5% <span class="trend-icon">↑</span>
+                    </span>
+                </div>
+                <div class="kpi-description">Steady performance increase</div>
+                <div class="kpi-subdescription">Meets growth projections</div>
+            </div>
+        </section>
+
+        <!-- Chart Section -->
+        <section class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title-section">
+                    <h2 class="chart-title">Total Visitors</h2>
+                    <p class="chart-subtitle">Total for the last 3 months</p>
+                </div>
+                <div class="chart-time-selector">
+                    <button class="time-button active">Last 3 months</button>
+                    <button class="time-button">Last 30 days</button>
+                    <button class="time-button">Last 7 days</button>
+                </div>
+            </div>
+            <div class="chart-area">
+                <!-- Chart will be rendered here using a charting library like Chart.js -->
+                <canvas id="visitorsChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Table Section -->
+        <section class="table-container">
+            <div class="table-tabs">
+                <div class="tabs-list">
+                    <button class="tab-button active">Outline</button>
+                    <button class="tab-button">Past Performance <span class="tab-badge">3</span></button>
+                    <button class="tab-button">Key Personnel <span class="tab-badge">2</span></button>
+                    <button class="tab-button">Focus Documents</button>
+                </div>
+                <div class="table-actions">
+                    <button class="action-button">
+                        Customize Columns <span>▼</span>
+                    </button>
+                    <button class="action-button primary">
+                        <span>+</span> Add Section
+                    </button>
+                </div>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th class="cell-checkbox">
+                            <input type="checkbox" aria-label="Select all rows">
+                        </th>
+                        <th class="cell-drag-handle"></th>
+                        <th>Section Title</th>
+                        <th>Section Type</th>
+                        <th>Status</th>
+                        <th>Target</th>
+                        <th>Limit</th>
+                        <th>Reviewer</th>
+                        <th class="cell-more-options"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="cell-checkbox">
+                            <input type="checkbox" aria-label="Select row">
+                        </td>
+                        <td class="cell-drag-handle">⋮⋮</td>
+                        <td><strong>Header</strong></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td class="cell-more-options">
+                            <button class="more-options-button" aria-label="More options">⋮</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="cell-checkbox">
+                            <input type="checkbox" aria-label="Select row">
+                        </td>
+                        <td class="cell-drag-handle">⋮⋮</td>
+                        <td>Cover page</td>
+                        <td>Cover page</td>
+                        <td class="cell-status">
+                            <span class="status-icon in-progress"></span>
+                            <span>In Process</span>
+                        </td>
+                        <td>18</td>
+                        <td>5</td>
+                        <td class="cell-reviewer">Eddie Lake</td>
+                        <td class="cell-more-options">
+                            <button class="more-options-button" aria-label="More options">⋮</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="cell-checkbox">
+                            <input type="checkbox" aria-label="Select row">
+                        </td>
+                        <td class="cell-drag-handle">⋮⋮</td>
+                        <td>Table of contents</td>
+                        <td>Table of contents</td>
+                        <td class="cell-status">
+                            <span class="status-icon done"></span>
+                            <span>Done</span>
+                        </td>
+                        <td>29</td>
+                        <td>24</td>
+                        <td class="cell-reviewer">Eddie Lake</td>
+                        <td class="cell-more-options">
+                            <button class="more-options-button" aria-label="More options">⋮</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="cell-checkbox">
+                            <input type="checkbox" aria-label="Select row">
+                        </td>
+                        <td class="cell-drag-handle">⋮⋮</td>
+                        <td>Executive summary</td>
+                        <td>Narrative</td>
+                        <td class="cell-status">
+                            <span class="status-icon done"></span>
+                            <span>Done</span>
+                        </td>
+                        <td>10</td>
+                        <td>13</td>
+                        <td class="cell-reviewer">Eddie Lake</td>
+                        <td class="cell-more-options">
+                            <button class="more-options-button" aria-label="More options">⋮</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="cell-checkbox">
+                            <input type="checkbox" aria-label="Select row">
+                        </td>
+                        <td class="cell-drag-handle">⋮⋮</td>
+                        <td>Technical approach</td>
+                        <td>Narrative</td>
+                        <td class="cell-status">
+                            <span class="status-icon done"></span>
+                            <span>Done</span>
+                        </td>
+                        <td>27</td>
+                        <td>23</td>
+                        <td class="cell-reviewer">Jamik Tashpulatov</td>
+                        <td class="cell-more-options">
+                            <button class="more-options-button" aria-label="More options">⋮</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="cell-checkbox">
+                            <input type="checkbox" aria-label="Select row">
+                        </td>
+                        <td class="cell-drag-handle">⋮⋮</td>
+                        <td>Design</td>
+                        <td>Narrative</td>
+                        <td class="cell-status">
+                            <span class="status-icon in-progress"></span>
+                            <span>In Process</span>
+                        </td>
+                        <td>2</td>
+                        <td>16</td>
+                        <td class="cell-reviewer">Jamik Tashpulatov</td>
+                        <td class="cell-more-options">
+                            <button class="more-options-button" aria-label="More options">⋮</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="cell-checkbox">
+                            <input type="checkbox" aria-label="Select row">
+                        </td>
+                        <td class="cell-drag-handle">⋮⋮</td>
+                        <td>Capabilities</td>
+                        <td>Narrative</td>
+                        <td class="cell-status">
+                            <span class="status-icon in-progress"></span>
+                            <span>In Process</span>
+                        </td>
+                        <td>20</td>
+                        <td>8</td>
+                        <td class="cell-reviewer">Jamik Tashpulatov</td>
+                        <td class="cell-more-options">
+                            <button class="more-options-button" aria-label="More options">⋮</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="cell-checkbox">
+                            <input type="checkbox" aria-label="Select row">
+                        </td>
+                        <td class="cell-drag-handle">⋮⋮</td>
+                        <td>Integration with existing systems</td>
+                        <td>Narrative</td>
+                        <td class="cell-status">
+                            <span class="status-icon in-progress"></span>
+                            <span>In Process</span>
+                        </td>
+                        <td>19</td>
+                        <td>21</td>
+                        <td class="cell-reviewer">Jamik Tashpulatov</td>
+                        <td class="cell-more-options">
+                            <button class="more-options-button" aria-label="More options">⋮</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="cell-checkbox">
+                            <input type="checkbox" aria-label="Select row">
+                        </td>
+                        <td class="cell-drag-handle">⋮⋮</td>
+                        <td>Innovation and Advantages</td>
+                        <td>Narrative</td>
+                        <td class="cell-status">
+                            <span class="status-icon done"></span>
+                            <span>Done</span>
+                        </td>
+                        <td>25</td>
+                        <td>26</td>
+                        <td>
+                            <div class="reviewer-dropdown">
+                                <span>Assign reviewer</span>
+                                <span>▼</span>
+                            </div>
+                        </td>
+                        <td class="cell-more-options">
+                            <button class="more-options-button" aria-label="More options">⋮</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="cell-checkbox">
+                            <input type="checkbox" aria-label="Select row">
+                        </td>
+                        <td class="cell-drag-handle">⋮⋮</td>
+                        <td>Overview of EMR's Innovative Solutions</td>
+                        <td>Technical content</td>
+                        <td class="cell-status">
+                            <span class="status-icon done"></span>
+                            <span>Done</span>
+                        </td>
+                        <td>7</td>
+                        <td>23</td>
+                        <td>
+                            <div class="reviewer-dropdown">
+                                <span>Assign reviewer</span>
+                                <span>▼</span>
+                            </div>
+                        </td>
+                        <td class="cell-more-options">
+                            <button class="more-options-button" aria-label="More options">⋮</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </div>
+
+    <!-- Chart.js Example Implementation -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Sample Chart.js implementation for the area chart
+        const ctx = document.getElementById('visitorsChart');
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jun 24', 'Jun 25', 'Jun 26', 'Jun 27', 'Jun 28', 'Jun 29', 'Jun 30'],
+                    datasets: [{
+                        label: 'Visitors',
+                        data: [4200, 3800, 3500, 4500, 4800, 4200, 5200],
+                        fill: true,
+                        backgroundColor: 'rgba(74, 222, 128, 0.2)',
+                        borderColor: 'rgba(74, 222, 128, 1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: 'rgba(74, 222, 128, 1)',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(51, 51, 51, 0.95)',
+                            titleColor: '#fff',
+                            bodyColor: '#b0b0b0',
+                            borderColor: '#404040',
+                            borderWidth: 1,
+                            padding: 12,
+                            displayColors: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#808080',
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.05)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#808080',
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+        }
+
+        // Time selector button functionality
+        const timeButtons = document.querySelectorAll('.time-button');
+        timeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                timeButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                // In a real implementation, this would fetch new data and update the chart
+            });
+        });
+
+        // Tab button functionality
+        const tabButtons = document.querySelectorAll('.tab-button');
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                // In a real implementation, this would switch the table content
+            });
+        });
+
+        // Table row selection
+        const tableRows = document.querySelectorAll('.data-table tbody tr');
+        tableRows.forEach(row => {
+            const checkbox = row.querySelector('input[type="checkbox"]');
+            if (checkbox) {
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        row.classList.add('selected');
+                    } else {
+                        row.classList.remove('selected');
+                    }
+                });
+            }
+        });
+
+        // Select all functionality
+        const selectAllCheckbox = document.querySelector('.data-table thead input[type="checkbox"]');
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', function() {
+                const allCheckboxes = document.querySelectorAll('.data-table tbody input[type="checkbox"]');
+                allCheckboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                    const row = checkbox.closest('tr');
+                    if (this.checked) {
+                        row.classList.add('selected');
+                    } else {
+                        row.classList.remove('selected');
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>
+

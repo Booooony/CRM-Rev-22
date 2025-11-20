@@ -1,0 +1,1785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equipment Catalogue - Mechanical Products</title>
+    <link rel="stylesheet" href="dashboard-styles.css">
+    <style>
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 4px 0;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-success) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin: 0;
+            font-weight: 400;
+        }
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 0;
+        }
+
+        .nav-tab {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .nav-tab:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-tab.active {
+            color: var(--accent-success);
+            border-bottom-color: var(--accent-success);
+        }
+
+        /* Enhanced Table Styling */
+        .data-table {
+            background-color: #121212;
+        }
+
+        .data-table thead {
+            background-color: rgba(255, 255, 255, 0.06);
+        }
+
+        .data-table thead tr {
+            background-color: rgba(255, 255, 255, 0.06);
+        }
+
+        .data-table th {
+            padding: 14px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #9ca3af;
+            text-transform: none;
+            letter-spacing: 0.3px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .data-table tbody {
+            background-color: #121212;
+        }
+
+        .data-table tbody tr {
+            background-color: #121212;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .data-table tbody tr:hover {
+            background-color: #1a1a1a;
+        }
+
+        .data-table td {
+            padding: 14px 16px;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .data-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .cell-drag-handle {
+            width: 40px;
+            color: var(--text-tertiary);
+            font-size: 18px;
+            cursor: grab;
+            user-select: none;
+            text-align: center;
+        }
+
+        .cell-checkbox {
+            width: 48px;
+        }
+
+        .more-options-button {
+            color: var(--text-tertiary);
+            font-size: 20px;
+            padding: 6px;
+            line-height: 1;
+        }
+
+        /* Actions Menu */
+        .actions-menu {
+            display: none;
+            position: fixed;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            min-width: 150px;
+        }
+
+        .actions-menu.active {
+            display: block;
+        }
+
+        .action-menu-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-primary);
+            transition: background-color 0.2s;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .action-menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .action-menu-item:hover {
+            background-color: var(--hover-overlay);
+        }
+
+        .action-menu-item.danger:hover {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--accent-error);
+        }
+
+        /* Cost History Chart */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 350px;
+            min-height: 350px;
+            margin: var(--spacing-md) 0;
+            background-color: var(--bg-elevated);
+            border-radius: var(--radius-sm);
+            padding: var(--spacing-lg);
+        }
+
+        .chart-canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        .cost-history-info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .cost-info-card {
+            background-color: var(--bg-elevated);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-sm);
+            text-align: center;
+        }
+
+        .cost-info-label {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .cost-info-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .clickable-row {
+            cursor: pointer;
+        }
+
+        .clickable-row:hover {
+            background-color: #1a1a1a !important;
+        }
+
+        /* Cost History Table */
+        .cost-history-table {
+            width: 100%;
+            margin-top: var(--spacing-lg);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            background-color: var(--bg-card);
+        }
+
+        .cost-history-table th {
+            background-color: var(--bg-elevated);
+            padding: 6px 10px;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border-medium);
+            text-align: left;
+        }
+
+        .cost-history-table td {
+            padding: 6px 10px;
+            font-size: 12px;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .cost-history-table tbody tr:hover {
+            background-color: var(--hover-overlay);
+        }
+
+        .cost-history-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .cost-change-positive {
+            color: var(--accent-error);
+            font-size: 11px;
+        }
+
+        .cost-change-negative {
+            color: var(--accent-success);
+            font-size: 11px;
+        }
+
+        .cost-change-neutral {
+            color: var(--text-tertiary);
+            font-size: 11px;
+        }
+
+        .data-table td strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Filter Section */
+        .filter-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        .filter-btn {
+            padding: 9px 16px;
+            background-color: var(--bg-elevated);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            height: 38px;
+        }
+
+        .filter-btn:hover {
+            background-color: var(--hover-overlay);
+            color: var(--text-primary);
+        }
+
+        .filter-btn.active {
+            background-color: var(--accent-success);
+            border-color: var(--accent-success);
+            color: white;
+        }
+
+        .btn-add-item {
+            padding: 9px 20px;
+            background-color: var(--accent-success);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            height: 38px;
+        }
+
+        .btn-add-item:hover {
+            background-color: var(--accent-success-dark);
+        }
+
+        .btn-import {
+            padding: 9px 16px;
+            background-color: var(--bg-elevated);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            height: 38px;
+        }
+
+        .btn-import:hover {
+            background-color: var(--hover-overlay);
+            color: var(--text-primary);
+        }
+
+        /* Search Bar */
+        .search-bar {
+            position: relative;
+            flex: 1;
+            max-width: 300px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 9px 16px 9px 36px;
+            background-color: var(--bg-elevated);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 13px;
+            font-family: var(--font-family);
+            transition: all 0.2s;
+            height: 38px;
+            box-sizing: border-box;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-success);
+            background-color: var(--bg-secondary);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        /* Category Badge */
+        .category-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: 500;
+            background-color: rgba(255, 255, 255, 0.08);
+            color: var(--text-secondary);
+        }
+
+        /* Image Status Badge */
+        .image-status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .image-status-badge.has-image {
+            background-color: rgba(74, 222, 128, 0.15);
+            color: var(--accent-success);
+            border: 1px solid var(--accent-success);
+        }
+
+        .image-status-badge.no-image {
+            background-color: rgba(255, 255, 255, 0.08);
+            color: var(--text-tertiary);
+            border: 1px solid var(--border-medium);
+        }
+
+        .image-status-badge:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Image Modal */
+        .image-modal-preview {
+            width: 100%;
+            max-height: 500px;
+            object-fit: contain;
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .no-image-preview {
+            width: 100%;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bg-elevated);
+            border-radius: var(--radius-md);
+            border: 2px dashed var(--border-medium);
+            margin-bottom: var(--spacing-lg);
+            color: var(--text-tertiary);
+        }
+
+        .no-image-preview-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .upload-btn-large {
+            padding: 12px 24px;
+            background-color: var(--accent-success);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .upload-btn-large:hover {
+            background-color: var(--accent-success-dark);
+        }
+
+        .btn-remove {
+            padding: 12px 24px;
+            background-color: var(--accent-error);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-remove:hover {
+            background-color: #dc2626;
+        }
+
+        /* Preview Table */
+        .preview-section {
+            display: none;
+            margin-top: var(--spacing-lg);
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .preview-section.show {
+            display: block;
+        }
+
+        .preview-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            background-color: var(--bg-elevated);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+        }
+
+        .preview-table th {
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .preview-table td {
+            padding: 10px 12px;
+            color: var(--text-primary);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .preview-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .preview-count {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .preview-count strong {
+            color: var(--accent-success);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 0;
+            max-width: 900px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 28px;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background-color: var(--hover-overlay);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: var(--spacing-lg);
+        }
+
+        /* Import Instructions */
+        .import-instructions {
+            background-color: var(--bg-elevated);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-sm);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .import-instructions h3 {
+            margin: 0 0 12px 0;
+            font-size: 16px;
+            color: var(--text-primary);
+        }
+
+        .import-instructions ol {
+            margin: 0;
+            padding-left: 20px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .import-instructions li {
+            margin-bottom: 8px;
+        }
+
+        .paste-area {
+            width: 100%;
+            min-height: 300px;
+            padding: var(--spacing-md);
+            background-color: var(--bg-elevated);
+            border: 2px dashed var(--border-medium);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            resize: vertical;
+            transition: border-color 0.2s;
+        }
+
+        .paste-area:focus {
+            outline: none;
+            border-color: var(--accent-success);
+        }
+
+        .btn-secondary {
+            padding: 10px 20px;
+            background-color: var(--bg-elevated);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--hover-overlay);
+        }
+
+        .btn-primary {
+            padding: 10px 20px;
+            background-color: var(--accent-success);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-success-dark);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            justify-content: flex-end;
+            margin-top: var(--spacing-lg);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: var(--text-tertiary);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .filter-count {
+            display: inline-block;
+            padding: 2px 8px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .editable-cell {
+            cursor: pointer;
+            padding: 4px;
+            border-radius: var(--radius-sm);
+            transition: background-color 0.2s;
+        }
+
+        .editable-cell:hover {
+            background-color: var(--hover-overlay);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container" style="padding: 24px; max-width: 1600px; margin: 0 auto;">
+        
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Mechanical Products CRM</h1>
+            <p class="page-subtitle">Equipment catalogue and project management</p>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <a href="index.html" class="nav-tab">Projects</a>
+            <a href="equipment-catalogue.html" class="nav-tab active">Equipment Catalogue</a>
+            <a href="analytics.html" class="nav-tab">Analytics</a>
+        </div>
+
+        <!-- Image Modal -->
+        <div id="imageModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="imageModalTitle">Equipment Image</h2>
+                    <button class="modal-close" onclick="closeImageModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="imagePreviewArea">
+                        <!-- Image preview will be inserted here -->
+                    </div>
+                    <div class="modal-actions">
+                        <button class="btn-secondary" onclick="closeImageModal()">Close</button>
+                        <button class="upload-btn-large" onclick="triggerImageUpload()">
+                            <span>📁</span> Upload New Image
+                        </button>
+                        <button class="btn-remove" id="removeImageBtn" style="display: none;" onclick="removeImage()">
+                            Remove Image
+                        </button>
+                    </div>
+                    <input type="file" id="imageUploadInput" accept="image/*" style="display: none;" onchange="handleImageUploadFromModal(event)">
+                </div>
+            </div>
+        </div>
+
+        <!-- Import Modal -->
+        <div id="importModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Import from Excel</h2>
+                    <button class="modal-close" onclick="closeImportModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="import-instructions">
+                        <h3>How to Import:</h3>
+                        <ol>
+                            <li>Open your Excel spreadsheet</li>
+                            <li>Select and copy the data (including headers): <strong>Equipment Type, Category, Model Number, Description, Lead Time, Cost, Drawing Number</strong></li>
+                            <li>Paste the data into the text area below</li>
+                            <li>Click "Import Data" to add items to the catalogue</li>
+                            <li>You can upload images for each item later using the upload button in the table</li>
+                        </ol>
+                    </div>
+                    <textarea 
+                        id="pasteArea" 
+                        class="paste-area" 
+                        placeholder="Paste your Excel data here...&#10;&#10;Example:&#10;Equipment Type	Category	Model Number	Description	Lead Time	Cost	Drawing Number&#10;Standard	Pumps	P-100	Centrifugal Pump	4 weeks	$2,500	DWG-001&#10;Standard	Valves	V-200	Ball Valve 2in	2 weeks	$350	DWG-002"
+                    ></textarea>
+                    
+                    <!-- Preview Section -->
+                    <div class="preview-section" id="previewSection">
+                        <h3 class="preview-title">Data Preview</h3>
+                        <div class="preview-count" id="previewCount"></div>
+                        <div style="overflow-x: auto;">
+                            <table class="preview-table" id="previewTable">
+                                <!-- Preview will be inserted here -->
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button class="btn-secondary" onclick="closeImportModal()">Cancel</button>
+                        <button class="btn-secondary" onclick="showPreview()">Preview Data</button>
+                        <button class="btn-primary" onclick="processImport()" id="importBtn">Import Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="filter-buttons">
+                <button class="btn-add-item" onclick="openAddItemModal()">
+                    <span>+</span> Add Item
+                </button>
+                <button class="btn-import" onclick="openImportModal()">
+                    <span>📋</span> Import from Excel
+                </button>
+                <button class="filter-btn active">
+                    All
+                    <span class="filter-count" id="allCount">0</span>
+                </button>
+                
+                <!-- Search Bar -->
+                <div class="search-bar">
+                    <span class="search-icon">🔍</span>
+                    <input 
+                        type="text" 
+                        class="search-input" 
+                        id="searchInput" 
+                        placeholder="Search catalogue..."
+                        oninput="searchEquipment()"
+                    >
+                </div>
+            </div>
+            <div class="table-header-actions">
+                <button class="action-button">
+                    Export Data <span>↓</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Equipment Table -->
+        <section class="table-container">
+            <div id="tableWrapper">
+                <table class="data-table" id="equipmentTable">
+                    <thead>
+                        <tr>
+                            <th class="cell-drag-handle"></th>
+                            <th class="cell-checkbox">
+                                <input type="checkbox" id="selectAll" aria-label="Select all rows">
+                            </th>
+                            <th>Image</th>
+                            <th>Equipment Type</th>
+                            <th>Category</th>
+                            <th>Model Number</th>
+                            <th>Description</th>
+                            <th>Lead Time</th>
+                            <th>Cost</th>
+                            <th>Drawing Number</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="equipmentTableBody">
+                        <!-- Rows will be dynamically added here -->
+                    </tbody>
+                </table>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="empty-state">
+                    <div class="empty-state-icon">📦</div>
+                    <div class="empty-state-text">No equipment in catalogue</div>
+                    <div class="empty-state-subtext">Add items manually or import from Excel</div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Actions Menu -->
+    <div id="actionsMenu" class="actions-menu">
+        <!-- Menu items will be dynamically inserted -->
+    </div>
+
+    <!-- Update Cost Modal -->
+    <div id="updateCostModal" class="modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <h2 class="modal-title" id="updateCostTitle" style="font-size: 18px;">Update Cost</h2>
+                <button class="modal-close" onclick="closeUpdateCostModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: var(--spacing-lg);">
+                <div style="display: flex; align-items: center; gap: var(--spacing-md); margin-bottom: var(--spacing-lg); padding: 12px; background-color: var(--bg-elevated); border-radius: var(--radius-sm);">
+                    <div style="flex: 1;">
+                        <div style="font-size: 10px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Current</div>
+                        <div style="font-size: 16px; font-weight: 600; color: var(--text-primary);" id="currentCostDisplay">-</div>
+                    </div>
+                    <div style="color: var(--text-tertiary); font-size: 20px;">→</div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 10px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">New</div>
+                        <input type="number" id="newCostInput" style="width: 100%; padding: 8px 10px; background-color: var(--bg-card); border: 1px solid var(--border-medium); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 16px; font-weight: 600;" placeholder="0.00" step="0.01" min="0">
+                    </div>
+                </div>
+                <div style="margin-bottom: var(--spacing-lg);">
+                    <label style="display: block; font-size: 11px; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">Reason</label>
+                    <input type="text" id="costReasonInput" style="width: 100%; padding: 10px 12px; background-color: var(--bg-elevated); border: 1px solid var(--border-medium); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 14px; transition: all 0.2s;" placeholder="e.g., Supplier price increase" onfocus="this.style.borderColor='var(--accent-success)'; this.style.backgroundColor='var(--bg-card)'" onblur="this.style.borderColor='var(--border-medium)'; this.style.backgroundColor='var(--bg-elevated)'">
+                </div>
+                <div style="display: flex; gap: var(--spacing-sm); justify-content: flex-end;">
+                    <button class="btn-secondary" onclick="closeUpdateCostModal()" style="padding: 10px 20px; font-size: 14px;">Cancel</button>
+                    <button class="btn-primary" onclick="saveNewCost()" style="padding: 10px 20px; font-size: 14px; background-color: var(--accent-success); border: none; border-radius: var(--radius-sm); color: white; cursor: pointer; font-weight: 500; transition: all 0.2s;" onmouseover="this.style.backgroundColor='var(--accent-success-dark)'" onmouseout="this.style.backgroundColor='var(--accent-success)'">Update Cost</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cost History Modal -->
+    <div id="costHistoryModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h2 class="modal-title" id="costHistoryTitle">Cost History</h2>
+                <button class="modal-close" onclick="closeCostHistoryModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="cost-history-info" id="costHistoryInfo">
+                    <!-- Info cards will be inserted here -->
+                </div>
+                <div class="chart-container">
+                    <canvas id="costHistoryChart" class="chart-canvas"></canvas>
+                </div>
+                
+                <table class="cost-history-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 100px;">Date</th>
+                            <th style="width: 90px;">Cost</th>
+                            <th style="width: 120px;">Change</th>
+                            <th>Reason</th>
+                        </tr>
+                    </thead>
+                    <tbody id="costHistoryTableBody">
+                        <!-- History rows will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Equipment data store
+        let equipment = [];
+        let equipmentIdCounter = 1;
+
+        // Save to localStorage
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem('equipmentCatalogue', JSON.stringify(equipment));
+                localStorage.setItem('equipmentIdCounter', equipmentIdCounter.toString());
+            } catch (e) {
+                console.error('Error saving to localStorage:', e);
+            }
+        }
+
+        // Load from localStorage
+        function loadFromLocalStorage() {
+            try {
+                const saved = localStorage.getItem('equipmentCatalogue');
+                const savedCounter = localStorage.getItem('equipmentIdCounter');
+                
+                if (saved) {
+                    equipment = JSON.parse(saved);
+                }
+                
+                if (savedCounter) {
+                    equipmentIdCounter = parseInt(savedCounter);
+                }
+                
+                // If no data, load sample data
+                if (equipment.length === 0) {
+                    loadSampleData();
+                }
+            } catch (e) {
+                console.error('Error loading from localStorage:', e);
+                loadSampleData();
+            }
+        }
+
+        // ===== COST UPDATE FUNCTIONALITY =====
+        
+        function openUpdateCostModal(itemId) {
+            currentEquipmentId = itemId;
+            const item = equipment.find(e => e.id === itemId);
+            if (!item) return;
+            
+            document.getElementById('updateCostTitle').textContent = `${item.modelNumber}`;
+            document.getElementById('currentCostDisplay').textContent = item.cost;
+            document.getElementById('newCostInput').value = '';
+            document.getElementById('costReasonInput').value = '';
+            document.getElementById('updateCostModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+            document.getElementById('actionsMenu').classList.remove('active');
+            
+            // Focus on input
+            setTimeout(() => document.getElementById('newCostInput').focus(), 100);
+        }
+
+        function closeUpdateCostModal() {
+            document.getElementById('updateCostModal').classList.remove('show');
+            document.body.style.overflow = 'auto';
+            document.getElementById('newCostInput').value = '';
+            document.getElementById('costReasonInput').value = '';
+        }
+
+        function saveNewCost() {
+            const item = equipment.find(e => e.id === currentEquipmentId);
+            if (!item) return;
+            
+            const newCostInput = document.getElementById('newCostInput');
+            const newCost = parseFloat(newCostInput.value);
+            const reason = document.getElementById('costReasonInput').value.trim();
+            
+            if (isNaN(newCost) || newCost < 0) {
+                alert('Please enter a valid cost');
+                return;
+            }
+            
+            // Initialize cost history if it doesn't exist
+            if (!item.costHistory) {
+                item.costHistory = [];
+                // Add current cost as first entry if not already there
+                if (item.cost) {
+                    item.costHistory.push({
+                        cost: item.cost,
+                        date: new Date().toISOString(),
+                        timestamp: Date.now(),
+                        reason: 'Initial cost'
+                    });
+                }
+            }
+            
+            // Add new cost to history
+            item.costHistory.push({
+                cost: '$' + newCost.toFixed(2),
+                date: new Date().toISOString(),
+                timestamp: Date.now(),
+                reason: reason || 'No reason provided'
+            });
+            
+            // Update current cost
+            item.cost = '$' + newCost.toFixed(2);
+            
+            saveToLocalStorage();
+            renderTable();
+            closeUpdateCostModal();
+            
+            // Show success message
+            alert('Cost updated successfully!');
+        }
+
+        // ===== COST HISTORY FUNCTIONALITY =====
+        
+        function openCostHistoryModal(itemId, event) {
+            if (event) event.stopPropagation();
+            
+            const item = equipment.find(e => e.id === itemId);
+            if (!item) return;
+            
+            document.getElementById('costHistoryTitle').textContent = `Cost History - ${item.modelNumber}`;
+            
+            // Initialize cost history if empty
+            if (!item.costHistory || item.costHistory.length === 0) {
+                item.costHistory = [{
+                    cost: item.cost,
+                    date: new Date().toISOString(),
+                    timestamp: Date.now(),
+                    reason: 'Initial cost'
+                }];
+            }
+            
+            // Calculate statistics
+            const costs = item.costHistory.map(h => parseFloat(h.cost.replace(/[$,]/g, '')));
+            const currentCost = costs[costs.length - 1];
+            const firstCost = costs[0];
+            const avgCost = costs.reduce((a, b) => a + b, 0) / costs.length;
+            const change = costs.length > 1 ? ((currentCost - firstCost) / firstCost * 100) : 0;
+            
+            // Display info cards
+            document.getElementById('costHistoryInfo').innerHTML = `
+                <div class="cost-info-card">
+                    <div class="cost-info-label">Current Cost</div>
+                    <div class="cost-info-value">$${currentCost.toFixed(2)}</div>
+                </div>
+                <div class="cost-info-card">
+                    <div class="cost-info-label">Average Cost</div>
+                    <div class="cost-info-value">$${avgCost.toFixed(2)}</div>
+                </div>
+                <div class="cost-info-card">
+                    <div class="cost-info-label">Total Change</div>
+                    <div class="cost-info-value" style="color: ${change >= 0 ? 'var(--accent-error)' : 'var(--accent-success)'};">
+                        ${change >= 0 ? '+' : ''}${change.toFixed(1)}%
+                    </div>
+                </div>
+            `;
+            
+            // Populate cost history table (reverse order - newest first)
+            const tableBody = document.getElementById('costHistoryTableBody');
+            const reversedHistory = [...item.costHistory].reverse();
+            tableBody.innerHTML = reversedHistory.map((entry, reverseIndex) => {
+                const index = item.costHistory.length - 1 - reverseIndex; // Get original index
+                const cost = parseFloat(entry.cost.replace(/[$,]/g, ''));
+                let changeHtml = '-';
+                let changeClass = 'cost-change-neutral';
+                
+                if (index > 0) {
+                    const prevCost = parseFloat(item.costHistory[index - 1].cost.replace(/[$,]/g, ''));
+                    const change = cost - prevCost;
+                    const changePercent = (change / prevCost * 100).toFixed(1);
+                    
+                    if (change > 0) {
+                        changeHtml = `+$${change.toFixed(2)} (+${changePercent}%)`;
+                        changeClass = 'cost-change-positive';
+                    } else if (change < 0) {
+                        changeHtml = `-$${Math.abs(change).toFixed(2)} (${changePercent}%)`;
+                        changeClass = 'cost-change-negative';
+                    } else {
+                        changeHtml = 'No change';
+                    }
+                }
+                
+                const date = new Date(entry.date).toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric', 
+                    year: 'numeric' 
+                });
+                
+                return `
+                    <tr>
+                        <td>${date}</td>
+                        <td><strong>${entry.cost}</strong></td>
+                        <td class="${changeClass}">${changeHtml}</td>
+                        <td style="color: var(--text-secondary);">${escapeHtml(entry.reason || '-')}</td>
+                    </tr>
+                `;
+            }).join('');
+            
+            // Show modal first, then draw chart
+            document.getElementById('costHistoryModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+            
+            // Draw chart after modal is visible (slight delay to ensure sizing)
+            setTimeout(() => drawCostChart(item.costHistory), 100);
+        }
+
+        function closeCostHistoryModal() {
+            document.getElementById('costHistoryModal').classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+
+        function drawCostChart(costHistory) {
+            const canvas = document.getElementById('costHistoryChart');
+            const ctx = canvas.getContext('2d');
+            
+            // Get container size
+            const container = canvas.parentElement;
+            const containerWidth = container.clientWidth - 48; // Account for padding (24px each side)
+            const containerHeight = container.clientHeight - 48;
+            
+            // Set canvas size
+            canvas.width = containerWidth;
+            canvas.height = containerHeight;
+            
+            const padding = 50;
+            const chartWidth = canvas.width - 2 * padding;
+            const chartHeight = canvas.height - 2 * padding;
+            
+            // Extract data
+            const costs = costHistory.map(h => parseFloat(h.cost.replace(/[$,]/g, '')));
+            const dates = costHistory.map(h => new Date(h.date).toLocaleDateString());
+            
+            // Find min and max (start from 0)
+            const minCost = 0;
+            const maxCostValue = Math.max(...costs);
+            
+            // Round up to next logical step for clearance
+            let maxCost;
+            if (maxCostValue <= 100) {
+                maxCost = Math.ceil(maxCostValue / 10) * 10;
+            } else if (maxCostValue <= 1000) {
+                maxCost = Math.ceil(maxCostValue / 100) * 100;
+            } else if (maxCostValue <= 10000) {
+                maxCost = Math.ceil(maxCostValue / 500) * 500;
+            } else {
+                maxCost = Math.ceil(maxCostValue / 1000) * 1000;
+            }
+            
+            // Add 10% clearance
+            maxCost = maxCost * 1.1;
+            
+            const range = maxCost || 1;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Set colors from theme
+            const lineColor = '#4ade80'; // accent-success
+            const gridColor = 'rgba(255, 255, 255, 0.06)';
+            const textColor = '#9ca3af';
+            
+            // Draw grid lines
+            ctx.strokeStyle = gridColor;
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 5; i++) {
+                const y = padding + (chartHeight / 5) * i;
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(canvas.width - padding, y);
+                ctx.stroke();
+                
+                // Draw y-axis labels
+                const value = maxCost - (range / 5) * i;
+                ctx.fillStyle = textColor;
+                ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif';
+                ctx.textAlign = 'right';
+                ctx.fillText('$' + value.toFixed(0), padding - 10, y + 4);
+            }
+            
+            // Draw line chart
+            if (costs.length > 0) {
+                ctx.strokeStyle = lineColor;
+                ctx.lineWidth = 4;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.beginPath();
+                
+                costs.forEach((cost, index) => {
+                    const x = padding + (chartWidth / (costs.length - 1 || 1)) * index;
+                    const y = padding + chartHeight - ((cost - minCost) / range) * chartHeight;
+                    
+                    if (index === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                });
+                
+                ctx.stroke();
+                
+                // Draw points
+                ctx.fillStyle = lineColor;
+                costs.forEach((cost, index) => {
+                    const x = padding + (chartWidth / (costs.length - 1 || 1)) * index;
+                    const y = padding + chartHeight - ((cost - minCost) / range) * chartHeight;
+                    
+                    ctx.beginPath();
+                    ctx.arc(x, y, 6, 0, 2 * Math.PI);
+                    ctx.fill();
+                    
+                    // Add white border to points for better visibility
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    ctx.strokeStyle = lineColor; // Reset
+                });
+                
+                // Draw x-axis labels
+                ctx.fillStyle = textColor;
+                ctx.font = '11px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif';
+                ctx.textAlign = 'center';
+                costs.forEach((cost, index) => {
+                    const x = padding + (chartWidth / (costs.length - 1 || 1)) * index;
+                    ctx.fillText(dates[index], x, canvas.height - 15);
+                });
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFromLocalStorage();
+            renderTable();
+            updateStats();
+        });
+
+        // Modal functions
+        function openImportModal() {
+            document.getElementById('importModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeImportModal() {
+            document.getElementById('importModal').classList.remove('show');
+            document.body.style.overflow = 'auto';
+            document.getElementById('pasteArea').value = '';
+            document.getElementById('previewSection').classList.remove('show');
+        }
+
+        // Show preview of data
+        function showPreview() {
+            const pasteData = document.getElementById('pasteArea').value;
+            
+            if (!pasteData.trim()) {
+                alert('Please paste data first');
+                return;
+            }
+
+            // Split by lines
+            const lines = pasteData.trim().split('\n');
+            
+            if (lines.length < 1) {
+                alert('Not enough data. Please paste your data.');
+                return;
+            }
+
+            // Parse data (assuming tab-separated from Excel)
+            // Skip header detection and treat all rows as data
+            const headers = ['Equipment Type', 'Category', 'Model Number', 'Description', 'Cost', 'Lead Time', 'Drawing Number'];
+            
+            // Filter out empty rows (rows where all cells are empty or whitespace)
+            const validRows = [];
+            for (let i = 0; i < lines.length; i++) {
+                const cells = lines[i].split('\t').map(c => c.trim());
+                // Check if row has at least one non-empty cell
+                const hasData = cells.some(cell => cell.length > 0);
+                if (hasData) {
+                    validRows.push(cells);
+                }
+            }
+            
+            if (validRows.length === 0) {
+                alert('No valid data found. Please check your paste.');
+                return;
+            }
+            
+            // Build preview table
+            const previewTable = document.getElementById('previewTable');
+            const previewSection = document.getElementById('previewSection');
+            const previewCount = document.getElementById('previewCount');
+            
+            let tableHTML = '<thead><tr>';
+            headers.forEach(header => {
+                tableHTML += `<th>${escapeHtml(header)}</th>`;
+            });
+            tableHTML += '</tr></thead><tbody>';
+            
+            // Show first 10 valid rows for preview
+            const maxRows = Math.min(validRows.length, 10);
+            for (let i = 0; i < maxRows; i++) {
+                const cells = validRows[i];
+                tableHTML += '<tr>';
+                // Pad cells to match header count
+                for (let j = 0; j < headers.length; j++) {
+                    tableHTML += `<td>${escapeHtml(cells[j] || '')}</td>`;
+                }
+                tableHTML += '</tr>';
+            }
+            tableHTML += '</tbody>';
+            
+            previewTable.innerHTML = tableHTML;
+            
+            const totalRows = validRows.length;
+            if (totalRows > 10) {
+                previewCount.innerHTML = `Showing first <strong>10</strong> of <strong>${totalRows}</strong> valid rows`;
+            } else {
+                previewCount.innerHTML = `<strong>${totalRows}</strong> row${totalRows !== 1 ? 's' : ''} will be imported`;
+            }
+            
+            previewSection.classList.add('show');
+        }
+
+        // Close modal on background click
+        document.getElementById('importModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeImportModal();
+            }
+        });
+
+        // Process Excel import
+        function processImport() {
+            const pasteData = document.getElementById('pasteArea').value;
+            
+            if (!pasteData.trim()) {
+                alert('Please paste data first');
+                return;
+            }
+
+            // Split by lines
+            const lines = pasteData.trim().split('\n');
+            
+            if (lines.length < 1) {
+                alert('Not enough data. Please paste your data.');
+                return;
+            }
+
+            // Filter out empty rows (rows where all cells are empty or whitespace)
+            const validRows = [];
+            for (let i = 0; i < lines.length; i++) {
+                const cells = lines[i].split('\t').map(c => c.trim());
+                // Check if row has at least 2 non-empty cells (to avoid single-cell merged headers)
+                const nonEmptyCells = cells.filter(cell => cell.length > 0);
+                if (nonEmptyCells.length >= 2) {
+                    validRows.push(cells);
+                }
+            }
+            
+            if (validRows.length === 0) {
+                alert('No valid data found. Please check your paste.');
+                return;
+            }
+
+            let imported = 0;
+            
+            // Process each valid row
+            // Assuming columns: Equipment Type, Category, Model Number, Description, Cost, Lead Time, Drawing Number
+            for (let i = 0; i < validRows.length; i++) {
+                const cells = validRows[i];
+                
+                // Only import if we have at least a model number or description
+                if (cells[2] || cells[3]) {
+                    const item = {
+                        id: equipmentIdCounter++,
+                        equipmentType: cells[0] || '',
+                        category: cells[1] || '',
+                        modelNumber: cells[2] || '',
+                        description: cells[3] || '',
+                        cost: cells[4] || '',
+                        leadTime: cells[5] || '',
+                        drawingNumber: cells[6] || '',
+                        image: null
+                    };
+                    
+                    equipment.push(item);
+                    imported++;
+                }
+            }
+
+            if (imported === 0) {
+                alert('No items imported. Make sure your data has Model Number or Description.');
+                return;
+            }
+
+            renderTable();
+            updateStats();
+            saveToLocalStorage();
+            closeImportModal();
+            
+            showNotification(`Successfully imported ${imported} item${imported !== 1 ? 's' : ''}!`);
+        }
+
+        // Render table
+        function renderTable() {
+            const tbody = document.getElementById('equipmentTableBody');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (equipment.length === 0) {
+                emptyState.style.display = 'block';
+                tbody.innerHTML = '';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            
+            tbody.innerHTML = equipment.map(item => `
+                <tr data-id="${item.id}" class="clickable-row" onclick="openCostHistoryModal(${item.id}, event)">
+                    <td class="cell-drag-handle" onclick="event.stopPropagation()">⋮⋮</td>
+                    <td class="cell-checkbox" onclick="event.stopPropagation()">
+                        <input type="checkbox" aria-label="Select row">
+                    </td>
+                    <td onclick="event.stopPropagation()">
+                        <span class="image-status-badge ${item.image ? 'has-image' : 'no-image'}" onclick="openImageModal(${item.id})">
+                            Image
+                        </span>
+                    </td>
+                    <td>${escapeHtml(item.equipmentType || '-')}</td>
+                    <td><span class="category-badge">${escapeHtml(item.category)}</span></td>
+                    <td><strong>${escapeHtml(item.modelNumber)}</strong></td>
+                    <td>${escapeHtml(item.description)}</td>
+                    <td>${escapeHtml(item.leadTime)}</td>
+                    <td>${escapeHtml(item.cost)}</td>
+                    <td>${escapeHtml(item.drawingNumber)}</td>
+                    <td style="text-align: center;" onclick="event.stopPropagation()">
+                        <button class="more-options-button" onclick="showActions(${item.id}, event)">⋮</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Re-attach event listeners for checkboxes
+            attachCheckboxListeners();
+        }
+
+        // Update statistics
+        function updateStats() {
+            const total = equipment.length;
+            document.getElementById('allCount').textContent = total;
+        }
+
+        // Search equipment
+        function searchEquipment() {
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('.data-table tbody tr');
+            
+            rows.forEach(row => {
+                const itemId = parseInt(row.getAttribute('data-id'));
+                const item = equipment.find(e => e.id === itemId);
+                
+                if (!item) return;
+                
+                const searchMatch = !searchText || (
+                    item.category.toLowerCase().includes(searchText) ||
+                    item.modelNumber.toLowerCase().includes(searchText) ||
+                    item.description.toLowerCase().includes(searchText) ||
+                    item.leadTime.toLowerCase().includes(searchText) ||
+                    item.cost.toLowerCase().includes(searchText) ||
+                    item.drawingNumber.toLowerCase().includes(searchText)
+                );
+                
+                row.style.display = searchMatch ? '' : 'none';
+            });
+        }
+
+        // Current item being edited
+        let currentImageItemId = null;
+
+        // Open image modal
+        function openImageModal(itemId) {
+            currentImageItemId = itemId;
+            const item = equipment.find(i => i.id === itemId);
+            if (!item) return;
+
+            const modal = document.getElementById('imageModal');
+            const previewArea = document.getElementById('imagePreviewArea');
+            const removeBtn = document.getElementById('removeImageBtn');
+            const title = document.getElementById('imageModalTitle');
+
+            title.textContent = `Image - ${item.modelNumber}`;
+
+            if (item.image) {
+                previewArea.innerHTML = `
+                    <img src="${item.image}" class="image-modal-preview" alt="${escapeHtml(item.modelNumber)}">
+                `;
+                removeBtn.style.display = 'inline-block';
+            } else {
+                previewArea.innerHTML = `
+                    <div class="no-image-preview">
+                        <div class="no-image-preview-icon">📷</div>
+                        <div style="color: var(--text-secondary); font-size: 14px;">No image uploaded</div>
+                    </div>
+                `;
+                removeBtn.style.display = 'none';
+            }
+
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close image modal
+        function closeImageModal() {
+            document.getElementById('imageModal').classList.remove('show');
+            document.body.style.overflow = 'auto';
+            currentImageItemId = null;
+        }
+
+        // Trigger image upload
+        function triggerImageUpload() {
+            document.getElementById('imageUploadInput').click();
+        }
+
+        // Handle image upload from modal
+        function handleImageUploadFromModal(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const item = equipment.find(i => i.id === currentImageItemId);
+                if (item) {
+                    item.image = e.target.result;
+                    saveToLocalStorage();
+                    renderTable();
+                    openImageModal(currentImageItemId); // Refresh modal
+                    showNotification('Image uploaded successfully!');
+                }
+            };
+            reader.readAsDataURL(file);
+            
+            // Reset input
+            event.target.value = '';
+        }
+
+        // Remove image
+        function removeImage() {
+            if (confirm('Are you sure you want to remove this image?')) {
+                const item = equipment.find(i => i.id === currentImageItemId);
+                if (item) {
+                    item.image = null;
+                    saveToLocalStorage();
+                    renderTable();
+                    openImageModal(currentImageItemId); // Refresh modal
+                    showNotification('Image removed');
+                }
+            }
+        }
+
+        // Close modal on background click
+        document.getElementById('imageModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeImageModal();
+            }
+        });
+
+        // Show actions menu
+        let currentEquipmentId = null;
+
+        function showActions(itemId, event) {
+            event.stopPropagation();
+            currentEquipmentId = itemId;
+            
+            const item = equipment.find(e => e.id === itemId);
+            if (!item) return;
+
+            const menu = document.getElementById('actionsMenu');
+            
+            // Position menu near the click
+            menu.style.left = event.pageX + 'px';
+            menu.style.top = event.pageY + 'px';
+            
+            // Create menu items
+            menu.innerHTML = `
+                <div class="action-menu-item" onclick="openUpdateCostModal(${itemId})">💰 Update Cost</div>
+                <div class="action-menu-item danger" onclick="deleteEquipment(${itemId})">🗑️ Delete</div>
+            `;
+            
+            menu.classList.add('active');
+        }
+
+        // Close actions menu when clicking outside
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('actionsMenu');
+            if (menu && !e.target.closest('.more-options-button') && !e.target.closest('.actions-menu')) {
+                menu.classList.remove('active');
+            }
+        });
+
+        function deleteEquipment(itemId) {
+            const item = equipment.find(e => e.id === itemId);
+            if (!item) return;
+            
+            if (confirm(`Delete "${item.modelNumber}"?`)) {
+                equipment = equipment.filter(e => e.id !== itemId);
+                saveToLocalStorage();
+                renderTable();
+                updateStats();
+            }
+            
+            document.getElementById('actionsMenu').classList.remove('active');
+        }
+
+        // Attach checkbox listeners
+        function attachCheckboxListeners() {
+            const tableRows = document.querySelectorAll('.data-table tbody tr');
+            tableRows.forEach(row => {
+                const checkbox = row.querySelector('input[type="checkbox"]');
+                if (checkbox) {
+                    checkbox.addEventListener('change', function() {
+                        if (this.checked) {
+                            row.classList.add('selected');
+                        } else {
+                            row.classList.remove('selected');
+                        }
+                    });
+                }
+            });
+        }
+
+        // Select all functionality
+        document.getElementById('selectAll').addEventListener('change', function() {
+            const allCheckboxes = document.querySelectorAll('.data-table tbody input[type="checkbox"]');
+            allCheckboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+                const row = checkbox.closest('tr');
+                if (this.checked) {
+                    row.classList.add('selected');
+                } else {
+                    row.classList.remove('selected');
+                }
+            });
+        });
+
+        // Notification function
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background-color: var(--accent-success);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                z-index: 2000;
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Escape HTML
+        function escapeHtml(unsafe) {
+            if (!unsafe) return '';
+            return unsafe
+                .toString()
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Load sample data
+        function loadSampleData() {
+            equipment = [
+                {
+                    id: equipmentIdCounter++,
+                    equipmentType: 'Standard',
+                    category: 'Pumps',
+                    modelNumber: 'P-100',
+                    description: 'Centrifugal Pump - High Flow',
+                    leadTime: '4 weeks',
+                    cost: '$2,500',
+                    drawingNumber: 'DWG-001',
+                    image: null
+                },
+                {
+                    id: equipmentIdCounter++,
+                    equipmentType: 'Standard',
+                    category: 'Valves',
+                    modelNumber: 'V-200',
+                    description: 'Ball Valve 2 inch',
+                    leadTime: '2 weeks',
+                    cost: '$350',
+                    drawingNumber: 'DWG-002',
+                    image: null
+                },
+                {
+                    id: equipmentIdCounter++,
+                    equipmentType: 'Standard',
+                    category: 'Motors',
+                    modelNumber: 'M-300',
+                    description: 'Electric Motor 5HP',
+                    leadTime: '6 weeks',
+                    cost: '$1,800',
+                    drawingNumber: 'DWG-003',
+                    image: null
+                }
+            ];
+            saveToLocalStorage();
+        }
+    </script>
+</body>
+</html>
+
