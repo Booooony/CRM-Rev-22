@@ -17,14 +17,29 @@ const firebaseConfig = {
 
 // Initialize Firebase (Compat SDK already loaded from CDN)
 try {
-    firebase.initializeApp(firebaseConfig);
-    
-    // Firestore and Storage references (global)
-    window.db = firebase.firestore();
-    window.storage = firebase.storage ? firebase.storage() : null;
-    
-    // Helpers - only create if db is initialized
-    if (window.db) {
+    if (typeof firebase === 'undefined') {
+        console.error('Firebase SDK not loaded');
+        window.db = null;
+        window.storage = null;
+        window.firestoreCollections = {
+            projects: () => null,
+            costings: () => null
+        };
+    } else {
+        firebase.initializeApp(firebaseConfig);
+        
+        // Firestore and Storage references (global)
+        if (typeof firebase.firestore === 'function') {
+            window.db = firebase.firestore();
+            console.log('Firestore initialized:', window.db ? 'success' : 'failed (returned null)');
+        } else {
+            console.error('firebase.firestore is not a function - Firestore script may not have loaded');
+            window.db = null;
+        }
+        window.storage = firebase.storage ? firebase.storage() : null;
+        
+        // Helpers - only create if db is initialized
+        if (window.db) {
         window.firestoreCollections = {
             projects: () => {
                 try {
@@ -61,12 +76,15 @@ try {
                 }
             }
         };
-    } else {
-        console.warn('Firebase Firestore initialization failed - db is null');
-        window.firestoreCollections = {
-            projects: () => null,
-            costings: () => null
-        };
+        } else {
+            console.warn('Firebase Firestore initialization failed - db is null');
+            console.warn('firebase object:', typeof firebase);
+            console.warn('firebase.firestore:', typeof firebase.firestore);
+            window.firestoreCollections = {
+                projects: () => null,
+                costings: () => null
+            };
+        }
     }
 } catch (error) {
     console.error('Firebase initialization error:', error);

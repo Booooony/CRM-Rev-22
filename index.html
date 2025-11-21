@@ -1099,6 +1099,14 @@
                 });
                 // keep a simple counter (optional)
                 projectIdCounter = Math.max(projects.reduce((m, p) => Math.max(m, parseInt(p.id) || 0), 0) + 1, 1);
+                
+                // Save to localStorage as backup for other pages
+                try {
+                    localStorage.setItem('crmProjects', JSON.stringify(projects));
+                    localStorage.setItem('projectIdCounter', projectIdCounter.toString());
+                } catch (storageError) {
+                    console.warn('Could not save projects to localStorage:', storageError);
+                }
             } catch (e) {
                 console.error('Error loading projects from Firestore:', e);
             }
