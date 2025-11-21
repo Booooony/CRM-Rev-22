@@ -27,18 +27,38 @@ try {
     if (window.db) {
         window.firestoreCollections = {
             projects: () => {
-                if (!window.db) {
-                    console.error('Firestore db is not initialized');
+                try {
+                    if (!window.db) {
+                        console.error('Firestore db is not initialized');
+                        return null;
+                    }
+                    // Double-check db has collection method
+                    if (typeof window.db.collection !== 'function') {
+                        console.error('Firestore db.collection is not a function');
+                        return null;
+                    }
+                    return window.db.collection('projects');
+                } catch (e) {
+                    console.error('Error accessing Firestore projects collection:', e);
                     return null;
                 }
-                return window.db.collection('projects');
             },
             costings: () => {
-                if (!window.db) {
-                    console.error('Firestore db is not initialized');
+                try {
+                    if (!window.db) {
+                        console.error('Firestore db is not initialized');
+                        return null;
+                    }
+                    // Double-check db has collection method
+                    if (typeof window.db.collection !== 'function') {
+                        console.error('Firestore db.collection is not a function');
+                        return null;
+                    }
+                    return window.db.collection('costings'); // docId: `${projectId}_${milestoneId}`
+                } catch (e) {
+                    console.error('Error accessing Firestore costings collection:', e);
                     return null;
                 }
-                return window.db.collection('costings'); // docId: `${projectId}_${milestoneId}`
             }
         };
     } else {

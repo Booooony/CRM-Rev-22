@@ -1454,6 +1454,11 @@
             // Try Firestore first
             if (hasFirebase) {
                 try {
+                    // Double-check firestoreCollections exists and is callable
+                    if (!firestoreCollections || typeof firestoreCollections.projects !== 'function') {
+                        throw new Error('firestoreCollections not available');
+                    }
+                    
                     const projectsCollection = firestoreCollections.projects();
                     if (!projectsCollection) {
                         throw new Error('Firestore collection not available');
@@ -2087,13 +2092,36 @@
                 window.location.href = 'index.html';
                 return;
             }
-            // Wait a bit for Firebase to initialize
+            // Wait for Firebase to initialize
             let retries = 0;
-            const maxRetries = 10;
-            while (retries < maxRetries && (typeof firebase === 'undefined' || typeof db === 'undefined' || db === null)) {
+            const maxRetries = 20; // Increased retries
+            while (retries < maxRetries) {
+                const firebaseReady = typeof firebase !== 'undefined' && 
+                                     typeof db !== 'undefined' && 
+                                     db !== null &&
+                                     typeof firestoreCollections !== 'undefined' &&
+                                     firestoreCollections !== null;
+                
+                if (firebaseReady) {
+                    // Test if collections work
+                    try {
+                        const testCollection = firestoreCollections.projects();
+                        if (testCollection !== null) {
+                            break; // Firebase is ready
+                        }
+                    } catch (e) {
+                        // Not ready yet
+                    }
+                }
+                
                 await new Promise(resolve => setTimeout(resolve, 100));
                 retries++;
             }
+            
+            if (retries >= maxRetries) {
+                console.warn('Firebase initialization timeout - will use localStorage fallback');
+            }
+            
             await loadProject();
             loadPeople();
             loadNotes();
