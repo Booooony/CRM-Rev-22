@@ -3096,9 +3096,17 @@
 
         // Initialize when DOM is ready
         document.addEventListener('DOMContentLoaded', async () => {
-            // Wait for Firebase to initialize
+            // Wait for Firebase scripts to load first
+            let scriptRetries = 0;
+            const maxScriptRetries = 50; // Wait up to 5 seconds for scripts
+            while (scriptRetries < maxScriptRetries && typeof firebase === 'undefined') {
+                await new Promise(resolve => setTimeout(resolve, 100));
+                scriptRetries++;
+            }
+            
+            // Now wait for Firebase to initialize
             let retries = 0;
-            const maxRetries = 20; // Increased retries
+            const maxRetries = 50; // Wait up to 5 more seconds for initialization
             while (retries < maxRetries) {
                 const firebaseReady = typeof firebase !== 'undefined' && 
                                      typeof db !== 'undefined' && 
@@ -3111,6 +3119,7 @@
                     try {
                         const testCollection = firestoreCollections.projects();
                         if (testCollection !== null) {
+                            console.log('Firebase initialized successfully');
                             break; // Firebase is ready
                         }
                     } catch (e) {
@@ -3122,8 +3131,13 @@
                 retries++;
             }
             
-            if (retries >= maxRetries) {
+            if (retries >= maxRetries || scriptRetries >= maxScriptRetries) {
                 console.warn('Firebase initialization timeout - will use localStorage fallback');
+                if (typeof firebase === 'undefined') {
+                    console.error('Firebase scripts did not load');
+                } else if (typeof db === 'undefined' || db === null) {
+                    console.error('Firebase Firestore did not initialize');
+                }
             }
             
             await initializePage();
