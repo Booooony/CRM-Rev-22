@@ -1447,6 +1447,9 @@
             // Load current status
             loadCurrentStatus();
 
+            // Load milestone data from Firestore or localStorage
+            await loadMilestoneData();
+
             // Initialize IndexedDB and load files
             (async () => {
                 try {
@@ -1456,6 +1459,86 @@
                     console.error('Error initializing IndexedDB:', error);
                 }
             })();
+        }
+
+        // ===== FIRESTORE FUNCTIONS FOR MILESTONE DATA =====
+        async function loadMilestoneData() {
+            const milestoneDocId = `${projectId}_${milestoneId}`;
+            const hasFirebase = typeof firebase !== 'undefined' && typeof db !== 'undefined' && typeof firestoreCollections !== 'undefined';
+            
+            if (hasFirebase) {
+                try {
+                    const collection = firestoreCollections.milestones();
+                    if (collection) {
+                        const docRef = collection.doc(milestoneDocId);
+                        const doc = await docRef.get();
+                        
+                        if (doc.exists) {
+                            const data = doc.data();
+                            // Sync to localStorage for fast access
+                            if (data.history) {
+                                localStorage.setItem(`milestone_${projectId}_${milestoneId}_history`, JSON.stringify(data.history));
+                            }
+                            if (data.todos) {
+                                localStorage.setItem(`milestone_${projectId}_${milestoneId}_todos`, JSON.stringify(data.todos));
+                            }
+                            if (data.emails) {
+                                localStorage.setItem(`milestone_${projectId}_${milestoneId}_emails`, JSON.stringify(data.emails));
+                            }
+                            if (data.execution) {
+                                localStorage.setItem(`execution_${projectId}_${milestoneId}`, JSON.stringify(data.execution));
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.error('Error loading milestone data from Firestore:', e);
+                }
+            }
+            
+            // Load from localStorage (either synced from Firestore or original source)
+            loadHistory();
+            loadTodos();
+            loadEmails();
+            if (milestoneId === 'execution') {
+                loadExecutionDetails();
+            }
+        }
+
+        async function saveMilestoneData() {
+            const milestoneDocId = `${projectId}_${milestoneId}`;
+            const hasFirebase = typeof firebase !== 'undefined' && typeof db !== 'undefined' && typeof firestoreCollections !== 'undefined';
+            
+            // Get current data from localStorage
+            const history = JSON.parse(localStorage.getItem(`milestone_${projectId}_${milestoneId}_history`) || '[]');
+            const todos = JSON.parse(localStorage.getItem(`milestone_${projectId}_${milestoneId}_todos`) || '[]');
+            const emails = JSON.parse(localStorage.getItem(`milestone_${projectId}_${milestoneId}_emails`) || '[]');
+            const timelineStatus = JSON.parse(localStorage.getItem(`project_${projectId}_timeline`) || '{}');
+            let execution = null;
+            if (milestoneId === 'execution') {
+                execution = JSON.parse(localStorage.getItem(`execution_${projectId}_${milestoneId}`) || '{}');
+            }
+            
+            if (hasFirebase) {
+                try {
+                    const collection = firestoreCollections.milestones();
+                    if (collection) {
+                        const docRef = collection.doc(milestoneDocId);
+                        await docRef.set({
+                            projectId: parseInt(projectId) || projectId,
+                            milestoneId: milestoneId,
+                            history: history,
+                            todos: todos,
+                            emails: emails,
+                            timelineStatus: timelineStatus,
+                            execution: execution,
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        }, { merge: true });
+                    }
+                } catch (e) {
+                    console.error('Error saving milestone data to Firestore:', e);
+                }
+            }
+            // localStorage is already updated by individual save functions
 
             // Load history
             loadHistory();
@@ -1748,6 +1831,7 @@
             });
             
             localStorage.setItem(todosKey, JSON.stringify(todos));
+            saveMilestoneData(); // Sync to Firestore
             
             todoInput.value = '';
             initialsInput.value = '';
@@ -1763,6 +1847,7 @@
             if (todos[index]) {
                 todos[index].completed = !todos[index].completed;
                 localStorage.setItem(todosKey, JSON.stringify(todos));
+                saveMilestoneData(); // Sync to Firestore
                 loadTodos();
             }
         }
@@ -1775,6 +1860,7 @@
             todos.splice(index, 1);
             
             localStorage.setItem(todosKey, JSON.stringify(todos));
+            saveMilestoneData(); // Sync to Firestore
             loadTodos();
         }
 
@@ -1792,6 +1878,7 @@
             if (todos[index]) {
                 todos[index].text = text;
                 localStorage.setItem(todosKey, JSON.stringify(todos));
+                saveMilestoneData(); // Sync to Firestore
             }
         }
 
@@ -1805,6 +1892,7 @@
             if (todos[index]) {
                 todos[index].initials = initials || null;
                 localStorage.setItem(todosKey, JSON.stringify(todos));
+                saveMilestoneData(); // Sync to Firestore
                 loadTodos();
             }
         }
@@ -1852,6 +1940,7 @@
                         todos.splice(targetIndex, 0, removed);
                         
                         localStorage.setItem(todosKey, JSON.stringify(todos));
+                        saveMilestoneData(); // Sync to Firestore
                         loadTodos();
                     }
                     this.classList.remove('drag-over');
@@ -1971,6 +2060,7 @@
                         try {
                             console.log('All email files processed, saving parsed data to localStorage');
                             localStorage.setItem(emailsKey, JSON.stringify(existingEmails));
+                            saveMilestoneData(); // Sync to Firestore
                             loadEmails();
                             
                             // Show success message
@@ -2336,6 +2426,7 @@
             emails.splice(index, 1);
             
             localStorage.setItem(emailsKey, JSON.stringify(emails));
+            saveMilestoneData(); // Sync to Firestore
             loadEmails();
         }
 
@@ -2968,6 +3059,7 @@
                 timestamp: new Date().toISOString()
             });
             localStorage.setItem(historyKey, JSON.stringify(history));
+            saveMilestoneData(); // Sync to Firestore
 
             // Clear comment
             document.getElementById('commentInput').value = '';
@@ -3057,6 +3149,7 @@
 
             const executionKey = `execution_${projectId}_${milestoneId}`;
             localStorage.setItem(executionKey, JSON.stringify(executionData));
+            saveMilestoneData(); // Sync to Firestore
 
             // Update link icon
             updateSharePointLink();
@@ -3096,51 +3189,51 @@
 
         // Initialize when DOM is ready
         document.addEventListener('DOMContentLoaded', async () => {
-            // Wait for Firebase scripts to load first
-            let scriptRetries = 0;
-            const maxScriptRetries = 50; // Wait up to 5 seconds for scripts
-            while (scriptRetries < maxScriptRetries && typeof firebase === 'undefined') {
-                await new Promise(resolve => setTimeout(resolve, 100));
-                scriptRetries++;
-            }
-            
-            // Now wait for Firebase to initialize
-            let retries = 0;
-            const maxRetries = 50; // Wait up to 5 more seconds for initialization
-            while (retries < maxRetries) {
-                const firebaseReady = typeof firebase !== 'undefined' && 
-                                     typeof db !== 'undefined' && 
-                                     db !== null &&
-                                     typeof firestoreCollections !== 'undefined' &&
-                                     firestoreCollections !== null;
-                
-                if (firebaseReady) {
-                    // Test if collections work
-                    try {
-                        const testCollection = firestoreCollections.projects();
-                        if (testCollection !== null) {
-                            console.log('Firebase initialized successfully');
-                            break; // Firebase is ready
-                        }
-                    } catch (e) {
-                        // Not ready yet
-                    }
-                }
-                
-                await new Promise(resolve => setTimeout(resolve, 100));
-                retries++;
-            }
-            
-            if (retries >= maxRetries || scriptRetries >= maxScriptRetries) {
-                console.warn('Firebase initialization timeout - will use localStorage fallback');
-                if (typeof firebase === 'undefined') {
-                    console.error('Firebase scripts did not load');
-                } else if (typeof db === 'undefined' || db === null) {
-                    console.error('Firebase Firestore did not initialize');
-                }
-            }
-            
+            // Load page immediately from localStorage (fast)
             await initializePage();
+            
+            // Then try to sync from Firestore in the background (non-blocking)
+            (async () => {
+                // Quick check for Firebase (max 1 second)
+                let scriptRetries = 0;
+                const maxScriptRetries = 10; // Wait up to 1 second for scripts
+                while (scriptRetries < maxScriptRetries && typeof firebase === 'undefined') {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    scriptRetries++;
+                }
+                
+                if (typeof firebase === 'undefined') {
+                    return; // Firebase not available, skip
+                }
+                
+                // Quick check for initialization (max 1 second)
+                let retries = 0;
+                const maxRetries = 10; // Wait up to 1 second for initialization
+                while (retries < maxRetries) {
+                    const firebaseReady = typeof firebase !== 'undefined' && 
+                                         typeof db !== 'undefined' && 
+                                         db !== null &&
+                                         typeof firestoreCollections !== 'undefined' &&
+                                         firestoreCollections !== null;
+                    
+                    if (firebaseReady) {
+                        try {
+                            const testCollection = firestoreCollections.projects();
+                            if (testCollection !== null) {
+                                // Firebase is ready - reload project data from Firestore
+                                console.log('Firebase available - syncing data in background');
+                                await initializePage(); // Reload with Firestore data
+                                return;
+                            }
+                        } catch (e) {
+                            // Not ready yet
+                        }
+                    }
+                    
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    retries++;
+                }
+            })();
         });
     </script>
 </body>

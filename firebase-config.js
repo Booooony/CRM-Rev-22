@@ -23,7 +23,11 @@ try {
         window.storage = null;
         window.firestoreCollections = {
             projects: () => null,
-            costings: () => null
+            costings: () => null,
+            equipment: () => null,
+            milestones: () => null,
+            people: () => null,
+            notes: () => null
         };
     } else {
         firebase.initializeApp(firebaseConfig);
@@ -47,7 +51,6 @@ try {
                         console.error('Firestore db is not initialized');
                         return null;
                     }
-                    // Double-check db has collection method
                     if (typeof window.db.collection !== 'function') {
                         console.error('Firestore db.collection is not a function');
                         return null;
@@ -64,7 +67,6 @@ try {
                         console.error('Firestore db is not initialized');
                         return null;
                     }
-                    // Double-check db has collection method
                     if (typeof window.db.collection !== 'function') {
                         console.error('Firestore db.collection is not a function');
                         return null;
@@ -72,6 +74,46 @@ try {
                     return window.db.collection('costings'); // docId: `${projectId}_${milestoneId}`
                 } catch (e) {
                     console.error('Error accessing Firestore costings collection:', e);
+                    return null;
+                }
+            },
+            equipment: () => {
+                try {
+                    if (!window.db) return null;
+                    if (typeof window.db.collection !== 'function') return null;
+                    return window.db.collection('equipment');
+                } catch (e) {
+                    console.error('Error accessing Firestore equipment collection:', e);
+                    return null;
+                }
+            },
+            milestones: () => {
+                try {
+                    if (!window.db) return null;
+                    if (typeof window.db.collection !== 'function') return null;
+                    return window.db.collection('milestones'); // docId: `${projectId}_${milestoneId}`
+                } catch (e) {
+                    console.error('Error accessing Firestore milestones collection:', e);
+                    return null;
+                }
+            },
+            people: () => {
+                try {
+                    if (!window.db) return null;
+                    if (typeof window.db.collection !== 'function') return null;
+                    return window.db.collection('people'); // docId: `project_${projectId}`
+                } catch (e) {
+                    console.error('Error accessing Firestore people collection:', e);
+                    return null;
+                }
+            },
+            notes: () => {
+                try {
+                    if (!window.db) return null;
+                    if (typeof window.db.collection !== 'function') return null;
+                    return window.db.collection('notes'); // docId: `project_${projectId}`
+                } catch (e) {
+                    console.error('Error accessing Firestore notes collection:', e);
                     return null;
                 }
             }
@@ -92,7 +134,11 @@ try {
     window.storage = null;
     window.firestoreCollections = {
         projects: () => null,
-        costings: () => null
+        costings: () => null,
+        equipment: () => null,
+        milestones: () => null,
+        people: () => null,
+        notes: () => null
     };
 }
 

@@ -747,6 +747,10 @@
     </style>
 </head>
 <body>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
     <div class="dashboard-container" style="padding: 24px; max-width: 1600px; margin: 0 auto;">
         
         <!-- Page Header -->
@@ -972,6 +976,90 @@
         // Equipment data store
         let equipment = [];
         let equipmentIdCounter = 1;
+
+        // ===== FIRESTORE FUNCTIONS =====
+        async function loadEquipmentFromFirestore() {
+            const hasFirebase = typeof firebase !== 'undefined' && typeof db !== 'undefined' && typeof firestoreCollections !== 'undefined';
+            if (!hasFirebase) return false;
+            
+            try {
+                const collection = firestoreCollections.equipment();
+                if (!collection) return false;
+                
+                const snapshot = await collection.get();
+                if (snapshot.empty) return false;
+                
+                equipment = snapshot.docs.map(doc => {
+                    const data = doc.data();
+                    return {
+                        id: data.id || parseInt(doc.id) || doc.id,
+                        ...data
+                    };
+                });
+                
+                // Get max ID for counter
+                if (equipment.length > 0) {
+                    equipmentIdCounter = Math.max(...equipment.map(e => parseInt(e.id) || 0)) + 1;
+                }
+                
+                // Save to localStorage as backup
+                saveEquipmentToFirestore();
+                return true;
+            } catch (e) {
+                console.error('Error loading equipment from Firestore:', e);
+                return false;
+            }
+        }
+
+        async function saveEquipmentToFirestore() {
+            const hasFirebase = typeof firebase !== 'undefined' && typeof db !== 'undefined' && typeof firestoreCollections !== 'undefined';
+            if (!hasFirebase) {
+                saveEquipmentToFirestore();
+                return;
+            }
+            
+            try {
+                const collection = firestoreCollections.equipment();
+                if (!collection) {
+                    saveEquipmentToFirestore();
+                    return;
+                }
+                
+                // Delete all existing documents
+                const snapshot = await collection.get();
+                const batch = db.batch();
+                snapshot.docs.forEach(doc => {
+                    batch.delete(doc.ref);
+                });
+                await batch.commit();
+                
+                // Add all equipment
+                const addBatch = db.batch();
+                equipment.forEach(item => {
+                    const docRef = collection.doc(String(item.id));
+                    addBatch.set(docRef, {
+                        id: item.id,
+                        modelNumber: item.modelNumber || '',
+                        equipmentType: item.equipmentType || '',
+                        description: item.description || '',
+                        category: item.category || '',
+                        cost: item.cost || 0,
+                        leadTime: item.leadTime || '',
+                        image: item.image || '',
+                        costHistory: item.costHistory || [],
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                });
+                await addBatch.commit();
+                
+                // Also save to localStorage as backup
+                saveEquipmentToFirestore();
+            } catch (e) {
+                console.error('Error saving equipment to Firestore:', e);
+                // Fallback to localStorage
+                saveEquipmentToFirestore();
+            }
+        }
 
         // Save to localStorage
         function saveToLocalStorage() {
@@ -1296,8 +1384,12 @@
         }
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            loadFromLocalStorage();
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Try Firestore first, fallback to localStorage
+            const loaded = await loadEquipmentFromFirestore();
+            if (!loaded) {
+                loadFromLocalStorage();
+            }
             renderTable();
             updateStats();
         });
@@ -1595,7 +1687,7 @@
                 const item = equipment.find(i => i.id === currentImageItemId);
                 if (item) {
                     item.image = e.target.result;
-                    saveToLocalStorage();
+                    saveEquipmentToFirestore();
                     renderTable();
                     openImageModal(currentImageItemId); // Refresh modal
                     showNotification('Image uploaded successfully!');
@@ -1613,7 +1705,7 @@
                 const item = equipment.find(i => i.id === currentImageItemId);
                 if (item) {
                     item.image = null;
-                    saveToLocalStorage();
+                    saveEquipmentToFirestore();
                     renderTable();
                     openImageModal(currentImageItemId); // Refresh modal
                     showNotification('Image removed');
@@ -1667,7 +1759,7 @@
             
             if (confirm(`Delete "${item.modelNumber}"?`)) {
                 equipment = equipment.filter(e => e.id !== itemId);
-                saveToLocalStorage();
+                saveEquipmentToFirestore();
                 renderTable();
                 updateStats();
             }

@@ -1845,7 +1845,32 @@
         }
 
         // Load people from localStorage
-        function loadPeople() {
+        async function loadPeople() {
+            const peopleDocId = `project_${projectId}`;
+            const hasFirebase = typeof firebase !== 'undefined' && typeof db !== 'undefined' && typeof firestoreCollections !== 'undefined';
+            
+            // Try Firestore first
+            if (hasFirebase) {
+                try {
+                    const collection = firestoreCollections.people();
+                    if (collection) {
+                        const docRef = collection.doc(peopleDocId);
+                        const doc = await docRef.get();
+                        if (doc.exists) {
+                            const data = doc.data();
+                            // Sync to localStorage
+                            localStorage.setItem(`project_${projectId}_people`, JSON.stringify({
+                                salesPeople: data.salesPeople || [],
+                                stakeholders: data.stakeholders || []
+                            }));
+                        }
+                    }
+                } catch (e) {
+                    console.error('Error loading people from Firestore:', e);
+                }
+            }
+            
+            // Load from localStorage (either synced from Firestore or original source)
             const peopleKey = `project_${projectId}_people`;
             const saved = localStorage.getItem(peopleKey);
             
@@ -1867,13 +1892,34 @@
         }
 
         // Save people to localStorage
-        function savePeople() {
+        async function savePeople() {
             const peopleKey = `project_${projectId}_people`;
             const data = {
                 salesPeople: salesPeople,
                 stakeholders: stakeholders
             };
             localStorage.setItem(peopleKey, JSON.stringify(data));
+            
+            // Save to Firestore
+            const peopleDocId = `project_${projectId}`;
+            const hasFirebase = typeof firebase !== 'undefined' && typeof db !== 'undefined' && typeof firestoreCollections !== 'undefined';
+            if (hasFirebase) {
+                try {
+                    const collection = firestoreCollections.people();
+                    if (collection) {
+                        const docRef = collection.doc(peopleDocId);
+                        await docRef.set({
+                            projectId: parseInt(projectId) || projectId,
+                            salesPeople: salesPeople,
+                            stakeholders: stakeholders,
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        }, { merge: true });
+                    }
+                } catch (e) {
+                    console.error('Error saving people to Firestore:', e);
+                }
+            }
+            
             updatePeopleButtonIndicator();
         }
 
@@ -2017,7 +2063,32 @@
         }
 
         // Load notes from localStorage
-        function loadNotes() {
+        async function loadNotes() {
+            const notesDocId = `project_${projectId}`;
+            const hasFirebase = typeof firebase !== 'undefined' && typeof db !== 'undefined' && typeof firestoreCollections !== 'undefined';
+            
+            // Try Firestore first
+            if (hasFirebase) {
+                try {
+                    const collection = firestoreCollections.notes();
+                    if (collection) {
+                        const docRef = collection.doc(notesDocId);
+                        const doc = await docRef.get();
+                        if (doc.exists) {
+                            const data = doc.data();
+                            // Sync to localStorage
+                            localStorage.setItem(`project_${projectId}_notes`, JSON.stringify({
+                                content: data.content || '',
+                                lastSaved: data.lastSaved || data.updatedAt || new Date().toISOString()
+                            }));
+                        }
+                    }
+                } catch (e) {
+                    console.error('Error loading notes from Firestore:', e);
+                }
+            }
+            
+            // Load from localStorage (either synced from Firestore or original source)
             const notesKey = `project_${projectId}_notes`;
             const saved = localStorage.getItem(notesKey);
             
@@ -2044,7 +2115,7 @@
         }
 
         // Save notes to localStorage
-        function saveNotes() {
+        async function saveNotes() {
             const notesKey = `project_${projectId}_notes`;
             const content = document.getElementById('notesTextarea').value;
             const now = new Date().toISOString();
@@ -2055,6 +2126,26 @@
             };
             
             localStorage.setItem(notesKey, JSON.stringify(data));
+            
+            // Save to Firestore
+            const notesDocId = `project_${projectId}`;
+            const hasFirebase = typeof firebase !== 'undefined' && typeof db !== 'undefined' && typeof firestoreCollections !== 'undefined';
+            if (hasFirebase) {
+                try {
+                    const collection = firestoreCollections.notes();
+                    if (collection) {
+                        const docRef = collection.doc(notesDocId);
+                        await docRef.set({
+                            projectId: parseInt(projectId) || projectId,
+                            content: content,
+                            lastSaved: now,
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        }, { merge: true });
+                    }
+                } catch (e) {
+                    console.error('Error saving notes to Firestore:', e);
+                }
+            }
             
             // Update last saved time
             const lastSavedTime = new Date(now).toLocaleString();
@@ -2093,53 +2184,53 @@
                 return;
             }
             
-            // Wait for Firebase scripts to load first
-            let scriptRetries = 0;
-            const maxScriptRetries = 50; // Wait up to 5 seconds for scripts
-            while (scriptRetries < maxScriptRetries && typeof firebase === 'undefined') {
-                await new Promise(resolve => setTimeout(resolve, 100));
-                scriptRetries++;
-            }
-            
-            // Now wait for Firebase to initialize
-            let retries = 0;
-            const maxRetries = 50; // Wait up to 5 more seconds for initialization
-            while (retries < maxRetries) {
-                const firebaseReady = typeof firebase !== 'undefined' && 
-                                     typeof db !== 'undefined' && 
-                                     db !== null &&
-                                     typeof firestoreCollections !== 'undefined' &&
-                                     firestoreCollections !== null;
-                
-                if (firebaseReady) {
-                    // Test if collections work
-                    try {
-                        const testCollection = firestoreCollections.projects();
-                        if (testCollection !== null) {
-                            console.log('Firebase initialized successfully');
-                            break; // Firebase is ready
-                        }
-                    } catch (e) {
-                        // Not ready yet
-                    }
-                }
-                
-                await new Promise(resolve => setTimeout(resolve, 100));
-                retries++;
-            }
-            
-            if (retries >= maxRetries || scriptRetries >= maxScriptRetries) {
-                console.warn('Firebase initialization timeout - will use localStorage fallback');
-                if (typeof firebase === 'undefined') {
-                    console.error('Firebase scripts did not load');
-                } else if (typeof db === 'undefined' || db === null) {
-                    console.error('Firebase Firestore did not initialize');
-                }
-            }
-            
+            // Load page immediately from localStorage (fast)
             await loadProject();
             loadPeople();
             loadNotes();
+            
+            // Then try to sync from Firestore in the background (non-blocking)
+            (async () => {
+                // Quick check for Firebase (max 1 second)
+                let scriptRetries = 0;
+                const maxScriptRetries = 10; // Wait up to 1 second for scripts
+                while (scriptRetries < maxScriptRetries && typeof firebase === 'undefined') {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    scriptRetries++;
+                }
+                
+                if (typeof firebase === 'undefined') {
+                    return; // Firebase not available, skip
+                }
+                
+                // Quick check for initialization (max 1 second)
+                let retries = 0;
+                const maxRetries = 10; // Wait up to 1 second for initialization
+                while (retries < maxRetries) {
+                    const firebaseReady = typeof firebase !== 'undefined' && 
+                                         typeof db !== 'undefined' && 
+                                         db !== null &&
+                                         typeof firestoreCollections !== 'undefined' &&
+                                         firestoreCollections !== null;
+                    
+                    if (firebaseReady) {
+                        try {
+                            const testCollection = firestoreCollections.projects();
+                            if (testCollection !== null) {
+                                // Firebase is ready - reload project data from Firestore
+                                console.log('Firebase available - syncing data in background');
+                                await loadProject(); // Reload with Firestore data
+                                return;
+                            }
+                        } catch (e) {
+                            // Not ready yet
+                        }
+                    }
+                    
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    retries++;
+                }
+            })();
         });
     </script>
 </body>
