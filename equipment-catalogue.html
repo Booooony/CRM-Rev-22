@@ -1003,7 +1003,7 @@
                 }
                 
                 // Save to localStorage as backup
-                saveEquipmentToFirestore();
+                saveToLocalStorage();
                 return true;
             } catch (e) {
                 console.error('Error loading equipment from Firestore:', e);
@@ -1014,14 +1014,14 @@
         async function saveEquipmentToFirestore() {
             const hasFirebase = typeof firebase !== 'undefined' && typeof db !== 'undefined' && typeof firestoreCollections !== 'undefined';
             if (!hasFirebase) {
-                saveEquipmentToFirestore();
+                saveToLocalStorage();
                 return;
             }
             
             try {
                 const collection = firestoreCollections.equipment();
                 if (!collection) {
-                    saveEquipmentToFirestore();
+                    saveToLocalStorage();
                     return;
                 }
                 
@@ -1053,11 +1053,11 @@
                 await addBatch.commit();
                 
                 // Also save to localStorage as backup
-                saveEquipmentToFirestore();
+                saveToLocalStorage();
             } catch (e) {
                 console.error('Error saving equipment to Firestore:', e);
                 // Fallback to localStorage
-                saveEquipmentToFirestore();
+                saveToLocalStorage();
             }
         }
 
