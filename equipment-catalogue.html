@@ -1013,17 +1013,11 @@
 
         async function saveEquipmentToFirestore() {
             const hasFirebase = typeof firebase !== 'undefined' && typeof db !== 'undefined' && typeof firestoreCollections !== 'undefined';
-            if (!hasFirebase) {
-                saveToLocalStorage();
-                return;
-            }
+            if (!hasFirebase) return;
             
             try {
                 const collection = firestoreCollections.equipment();
-                if (!collection) {
-                    saveToLocalStorage();
-                    return;
-                }
+                if (!collection) return;
                 
                 // Delete all existing documents
                 const snapshot = await collection.get();
@@ -1051,13 +1045,8 @@
                     });
                 });
                 await addBatch.commit();
-                
-                // Also save to localStorage as backup
-                saveToLocalStorage();
             } catch (e) {
                 console.error('Error saving equipment to Firestore:', e);
-                // Fallback to localStorage
-                saveToLocalStorage();
             }
         }
 
@@ -1069,6 +1058,11 @@
             } catch (e) {
                 console.error('Error saving to localStorage:', e);
             }
+        }
+
+        async function saveEquipment() {
+            saveToLocalStorage();
+            await saveEquipmentToFirestore();
         }
 
         // Load from localStorage
@@ -1159,7 +1153,7 @@
             // Update current cost
             item.cost = '$' + newCost.toFixed(2);
             
-            saveToLocalStorage();
+            saveEquipment();
             renderTable();
             closeUpdateCostModal();
             
@@ -1553,7 +1547,7 @@
 
             renderTable();
             updateStats();
-            saveToLocalStorage();
+            saveEquipment();
             closeImportModal();
             
             showNotification(`Successfully imported ${imported} item${imported !== 1 ? 's' : ''}!`);
@@ -1687,7 +1681,7 @@
                 const item = equipment.find(i => i.id === currentImageItemId);
                 if (item) {
                     item.image = e.target.result;
-                    saveEquipmentToFirestore();
+                    saveEquipment();
                     renderTable();
                     openImageModal(currentImageItemId); // Refresh modal
                     showNotification('Image uploaded successfully!');
@@ -1705,7 +1699,7 @@
                 const item = equipment.find(i => i.id === currentImageItemId);
                 if (item) {
                     item.image = null;
-                    saveEquipmentToFirestore();
+                    saveEquipment();
                     renderTable();
                     openImageModal(currentImageItemId); // Refresh modal
                     showNotification('Image removed');
@@ -1759,7 +1753,7 @@
             
             if (confirm(`Delete "${item.modelNumber}"?`)) {
                 equipment = equipment.filter(e => e.id !== itemId);
-                saveEquipmentToFirestore();
+                saveEquipment();
                 renderTable();
                 updateStats();
             }
@@ -1869,7 +1863,7 @@
                     image: null
                 }
             ];
-            saveToLocalStorage();
+            saveToLocalStorage();  <!-- sample data should remain -->
         }
     </script>
 </body>
