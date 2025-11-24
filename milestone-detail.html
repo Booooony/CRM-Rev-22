@@ -1232,6 +1232,9 @@
         const projectId = urlParams.get('projectId');
         const milestoneId = urlParams.get('milestoneId');
 
+        // Track listeners initialization
+        let listenersInitialized = false;
+
         // Milestone configuration
         const milestones = {
             'rfq': 'RFQ',
@@ -1450,6 +1453,14 @@
             // Load milestone data from Firestore or localStorage
             await loadMilestoneData();
 
+            // Setup event listeners and drag/drop once
+            if (!listenersInitialized) {
+                setupEventListeners();
+                setupFileDragDrop();
+                setupEmailDragDrop();
+                listenersInitialized = true;
+            }
+
             // Initialize IndexedDB and load files
             (async () => {
                 try {
@@ -1548,15 +1559,6 @@
 
             // Load emails
             loadEmails();
-
-            // Setup event listeners
-            setupEventListeners();
-
-            // Setup file drag and drop
-            setupFileDragDrop();
-
-            // Setup email file drag and drop
-            setupEmailDragDrop();
         }
 
         // Load current status
